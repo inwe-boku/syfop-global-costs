@@ -15,6 +15,9 @@ for year in config.YEARS:
     for month in config.MONTHS:
         cutout = download_era5(year, month)
 
+for year in config.YEARS:
+    for month in config.MONTHS:
+        cutout = download_era5(year, month)
         time_period = f"{year}-{month:02d}"
 
         # TODO let's silence the large chunk warning for now, not sure if relevant...
