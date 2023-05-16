@@ -1,15 +1,9 @@
 import os
 import pathlib
 
-NUM_PROCESSES = 8
-
 # used for downloading, calculation of time series etc
 MONTHS = range(1, 13)
 YEARS = (2012,)
-
-# 43.23m/s is the maximum in the current wind data set
-MAX_WIND_SPEED = 45
-
 
 REPO_ROOT_DIR = pathlib.Path(__file__).parent.parent
 
