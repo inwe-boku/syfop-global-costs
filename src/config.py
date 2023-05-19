@@ -3,7 +3,7 @@ import pathlib
 
 # used for downloading, calculation of time series etc
 MONTHS = range(1, 13)
-YEARS = (2012,)
+YEARS = (2011,)
 
 REPO_ROOT_DIR = pathlib.Path(__file__).parent.parent
 
