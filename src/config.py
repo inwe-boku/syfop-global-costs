@@ -22,3 +22,8 @@ OUTPUT_DIR = DATA_DIR / "output"
 FIGURES_DIR = DATA_DIR / "figures"
 
 FIGSIZE = (12, 7.5)
+
+# how many tiles in x/y are computed in one process at once
+CHUNK_SIZE = 5, 5
+
+NUM_PROCESSES = 8
