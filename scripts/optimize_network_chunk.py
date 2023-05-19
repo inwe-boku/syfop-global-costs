@@ -1,3 +1,7 @@
+"""Takes two indices as input and computes a chunk in the size of NxM where N,M is stored
+in CHUNK_SIZE
+"""
+
 import io
 import sys
 import logging
@@ -68,11 +72,15 @@ def optimize_network_single(param):
 
 
 def optimize_network_chunk(x_start_idx, y_start_idx):
+    logger = logging.getLogger(f"optimization_{x_start_idx}_{y_start_idx}")
+    logger.info(f"Starting computation for chunk {x_start_idx},{y_start_idx}...")
+
+    logger.info("Load renewable time series...")
     wind_raw = xr.open_mfdataset(
         [INTERIM_DIR / "wind" / f"wind_2012-{month:02d}.nc" for month in MONTHS]
     )
     pv_raw = xr.open_mfdataset(
-        [INTERIM_DIR / "wind" / f"wind_2012-{month:02d}.nc" for month in MONTHS]
+        [INTERIM_DIR / "pv" / f"pv_2012-{month:02d}.nc" for month in MONTHS]
     )
 
     x_slice = slice(x_start_idx, x_start_idx + CHUNK_SIZE[0])
@@ -93,9 +101,15 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
     # XXX No idea if groupby is really the best option to loop through two dimensions, but it seems
     # to work for now.
 
+    # the number of pixel in the chunk we are processing here
+    num_pixels = param.sizes["x"] * param.sizes["y"]
+
     for param_x_coord, param_x in param.groupby("x"):
         for param_y_coord, param_y in param_x.groupby("y"):
-            logging.info(f"Computing chunk number {i}...")
+            logger.info(
+                f"Computing pixel number {i}/{num_pixels} for chunk "
+                f"{x_start_idx},{y_start_idx}..."
+            )
 
             param = param_y.expand_dims(x=1, y=1).drop_vars(("lon", "lat"))
             solutions.append(optimize_network_single(param))
@@ -106,8 +120,11 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
 
     path = create_folder("network_solution")
     out.to_netcdf(path / f"network_solution_{x_start_idx}_{y_start_idx}.nc")
+    logger.info(f"Chunk {x_start_idx},{y_start_idx} done!")
 
 
 if __name__ == "__main__":
+    # TODO do we need to write log files to different files for each chunk or is it okay if
+    # multiple processes log to one file at the same time?
     setup_logging()
     optimize_network_chunk(int(sys.argv[1]), int(sys.argv[2]))
