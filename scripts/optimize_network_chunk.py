@@ -11,6 +11,7 @@ import xarray as xr
 
 from src.util import create_folder
 
+from src.config import YEARS
 from src.config import MONTHS
 from src.config import CHUNK_SIZE
 from src.config import INTERIM_DIR
@@ -76,21 +77,25 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
     logger.info(f"Starting computation for chunk {x_start_idx},{y_start_idx}...")
 
     logger.info("Load renewable time series...")
+
     wind_raw = xr.open_mfdataset(
-        [INTERIM_DIR / "wind" / f"wind_2012-{month:02d}.nc" for month in MONTHS]
+        [
+            INTERIM_DIR / "wind" / f"wind_{year}-{month:02d}.nc"
+            for month in MONTHS
+            for year in YEARS
+        ]
     )
     pv_raw = xr.open_mfdataset(
-        [INTERIM_DIR / "pv" / f"pv_2012-{month:02d}.nc" for month in MONTHS]
+        [INTERIM_DIR / "pv" / f"pv_{year}-{month:02d}.nc" for month in MONTHS for year in YEARS]
     )
 
     x_slice = slice(x_start_idx, x_start_idx + CHUNK_SIZE[0])
     y_slice = slice(y_start_idx, y_start_idx + CHUNK_SIZE[1])
 
-    # TODO remove stupid workaround for leap year here and add assert
-    wind_input_flow = wind_raw.isel(x=x_slice, y=y_slice, time=slice(None, 8760))
+    wind_input_flow = wind_raw.isel(x=x_slice, y=y_slice)
     wind_input_flow = wind_input_flow["specific generation"].load()
 
-    pv_input_flow = pv_raw.isel(x=x_slice, y=y_slice, time=slice(None, 8760))
+    pv_input_flow = pv_raw.isel(x=x_slice, y=y_slice)
     pv_input_flow = pv_input_flow["specific generation"].load()
 
     param = xr.Dataset({"wind_input_flow": wind_input_flow, "pv_input_flow": pv_input_flow})
@@ -98,7 +103,7 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
     i = 0
     solutions = []
 
-    # XXX No idea if groupby is really the best option to loop through two dimensions, but it seems
+    # XXX no idea if groupby is really the best option to loop through two dimensions, but it seems
     # to work for now.
 
     # the number of pixel in the chunk we are processing here

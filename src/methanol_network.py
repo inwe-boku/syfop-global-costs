@@ -82,10 +82,12 @@ def create_methanol_network(
         convert_factor=methanol_synthesis_convert_factor,
         output_unit="KW",
         input_proportions=methanol_synthesis_input_proportions,
+
+        # we just set a minimum methanol production per year but do not care
+        # when is generated, this is modelled via a free storage:
         storage=Storage(
             **{
-                "costs": 0.0,  # we just set a minimum methanol production per year but do not care
-                # when this is modeled via a free storage
+                "costs": 0.0,
                 "max_charging_speed": 1,
                 "storage_loss": 0,
                 "charging_loss": 0,
