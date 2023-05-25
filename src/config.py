@@ -26,4 +26,7 @@ FIGSIZE = (12, 7.5)
 # how many tiles in x/y are computed in one process at once
 CHUNK_SIZE = 5, 5
 
-NUM_PROCESSES = 8
+X_IDX_FROM_TO = 800, 840
+Y_IDX_FROM_TO = 500, 530
+
+NUM_PROCESSES = 3
