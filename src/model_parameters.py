@@ -56,8 +56,20 @@ storage_params = {
     },
 }
 
-# XXX these are temporary values, no idea what co2 capture costs or how much electricity it needs
-co2_cost = 1
-co2_convert_factor = 1
+# XXX these are still temporary values
+#   table 2: https://www.cell.com/joule/pdf/S2542-4351(18)30225-3.pdf
+#   ich würde scenario c nehmen
+#   und den gas input durch 3 dividieren, um auf strom zu kommen.
+#
+#    https://www.cell.com/joule/pdf/S2542-4351(18)30225-3.pdf
 
+# investment costs in $/t/year
+co2_cost = 694  # FIXME this should be in EUR/t/h instead of $/t/year, right?
+co2_electricity_input = 366  # kWh/t-CO2
+co2_gas_input = 5.25  # GJ/t-CO2
+gj_to_kwh = 1 / 3.6e-3
+gas_efficiency = 1 / 3
+co2_convert_factor = 1 / (gj_to_kwh * co2_gas_input * gas_efficiency + co2_electricity_input)
+
+# probably in KWh/Year, right?
 methanol_demand = 1000
