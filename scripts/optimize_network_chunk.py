@@ -4,6 +4,7 @@ in CHUNK_SIZE
 
 import io
 import sys
+import time
 import logging
 from contextlib import redirect_stdout
 
@@ -46,6 +47,8 @@ def optimize_network_single(param):
     """Optimize one pixel."""
     logging.info("Start optimization...")
 
+    t0 = time.time()
+
     wind_input_flow = param.wind_input_flow
     pv_input_flow = param.pv_input_flow
     network = create_methanol_network(
@@ -64,6 +67,8 @@ def optimize_network_single(param):
         methanol_synthesis_input_proportions=methanol_synthesis_input_proportions,
     )
 
+    logging.info(f"Creating network took {time.time() - t0}")
+
     with io.StringIO() as buf, redirect_stdout(buf):
         network.optimize("gurobi")
         # XXX do we need the optimizer's log output?
@@ -78,6 +83,7 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
 
     logger.info("Load renewable time series...")
 
+    t0 = time.time()
     wind_raw = xr.open_mfdataset(
         [
             INTERIM_DIR / "wind" / f"wind_{year}-{month:02d}.nc"
@@ -97,6 +103,8 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
 
     pv_input_flow = pv_raw.isel(x=x_slice, y=y_slice)
     pv_input_flow = pv_input_flow["specific generation"].load()
+
+    logging.info(f"Loading time series files took {time.time() - t0}")
 
     param = xr.Dataset({"wind_input_flow": wind_input_flow, "pv_input_flow": pv_input_flow})
 
