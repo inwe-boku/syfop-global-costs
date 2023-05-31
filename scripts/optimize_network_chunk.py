@@ -71,7 +71,7 @@ def optimize_network_single(param):
 
     with io.StringIO() as buf, redirect_stdout(buf):
         # basis_fn can be set to a filename ending in *.sol, the resulting file can be then used
-        # for warmstart_fn but it does not speed up the optimization - it is a bit slower. I assuem
+        # for warmstart_fn but it does not speed up the optimization - it is a bit slower. I assume
         # that the overhead for reading the file is larger then the benefit.
         network.optimize(
             "gurobi",
@@ -79,6 +79,9 @@ def optimize_network_single(param):
             basis_fn=None,
             # this has been found wiht grbtune - Gurobi's command line tuning tool
             Method=2,
+            ScaleFlag=0,
+            PreDual=1,
+            PrePasses=1,
         )
         # XXX do we need the optimizer's log output?
         output = buf.getvalue()
