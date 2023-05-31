@@ -16,6 +16,7 @@ from src.config import YEARS
 from src.config import MONTHS
 from src.config import CHUNK_SIZE
 from src.config import INTERIM_DIR
+from src.config import NUM_PROCESSES
 
 from src.logging_config import setup_logging
 from src.methanol_network import create_methanol_network
@@ -76,6 +77,7 @@ def optimize_network_single(param):
         network.optimize(
             "gurobi",
             warmstart_fn=None,
+            # basis_fn=INTERIM_DIR / 'model.lp',
             basis_fn=None,
             # this has been found wiht grbtune - Gurobi's command line tuning tool
             Method=2,
@@ -133,6 +135,7 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
 
     for param_x_coord, param_x in param.groupby("x"):
         for param_y_coord, param_y in param_x.groupby("y"):
+            t0 = time.time()
             logger.info(
                 f"Computing pixel number {i}/{num_pixels} for chunk "
                 f"{x_start_idx},{y_start_idx}..."
@@ -140,6 +143,12 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
 
             param = param_y.expand_dims(x=1, y=1).drop_vars(("lon", "lat"))
             solutions.append(optimize_network_single(param))
+
+            runtime =time.time() - t0
+            logging.info(
+                f"Pixel runtime for pixel {param_x_coord}/{param_y_coord} "
+                f"took: {runtime}s (about {runtime / NUM_PROCESSES}s per pixel)"
+            )
             i += 1
 
     # TODO check if xr.concat() would be faster (supports only one dimension)
