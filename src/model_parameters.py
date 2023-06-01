@@ -56,13 +56,10 @@ storage_params = {
     },
 }
 
-# XXX these are still temporary values
-#   table 2: https://www.cell.com/joule/pdf/S2542-4351(18)30225-3.pdf
-#   ich würde scenario c nehmen
+# table 2: https://www.cell.com/joule/pdf/S2542-4351(18)30225-3.pdf
+#   Jo: ich würde scenario c nehmen
 #   und den gas input durch 3 dividieren, um auf strom zu kommen.
 #
-#    https://www.cell.com/joule/pdf/S2542-4351(18)30225-3.pdf
-
 # investment costs in $/t/year
 # 8% discount rate, 20y life time
 # n=20; i=0.08; ((1+i)**n * i) / ((1+i)**n-1)
