@@ -64,12 +64,17 @@ storage_params = {
 #    https://www.cell.com/joule/pdf/S2542-4351(18)30225-3.pdf
 
 # investment costs in $/t/year
-co2_cost = 694  # FIXME this should be in EUR/t/h instead of $/t/year, right?
+# 8% discount rate, 20y life time
+# n=20; i=0.08; ((1+i)**n * i) / ((1+i)**n-1)
+# Note that 20 years is a guess, the paper does not mention which life time is assumed.
+annuality = 0.10185221
+co2_cost = annuality * 694  # FIXME this should be in EUR/t/h instead of $/t/year, right?
 co2_electricity_input = 366  # kWh/t-CO2
 co2_gas_input = 5.25  # GJ/t-CO2
 gj_to_kwh = 1 / 3.6e-3
-gas_efficiency = 1 / 3
+gas_efficiency = 1 / 3   # assumes heat pump COP3
 co2_convert_factor = 1 / (gj_to_kwh * co2_gas_input * gas_efficiency + co2_electricity_input)
 
 # probably in KWh/Year, right?
+# TODO what is a reasonable value here? shouldn't the result be proportional to this choice?
 methanol_demand = 1000
