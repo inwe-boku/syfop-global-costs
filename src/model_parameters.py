@@ -56,20 +56,27 @@ storage_params = {
     },
 }
 
-# table 2: https://www.cell.com/joule/pdf/S2542-4351(18)30225-3.pdf
-#   Jo: ich würde scenario c nehmen
-#   und den gas input durch 3 dividieren, um auf strom zu kommen.
-#
-# investment costs in $/t/year
-# 8% discount rate, 20y life time
-# n=20; i=0.08; ((1+i)**n * i) / ((1+i)**n-1)
-# Note that 20 years is a guess, the paper does not mention which life time is assumed.
-annuality = 0.10185221
-co2_cost = annuality * 694  # FIXME this should be in EUR/t/h instead of $/t/year, right?
+
+# Investment costs for direct air capture
+# Source:
+#   https://www.cell.com/joule/pdf/S2542-4351(18)30225-3.pdf
+#   Table 2, Scenario C
+
+# Exchange rate from 2018, because the paper was published in 2018
+# https://www.irs.gov/individuals/international-taxpayers/yearly-average-currency-exchange-rates
+dollar_to_eur = 0.848
+
+# Note: the paper assumes CRF of 7.5% and 12.5%. We use here about 10%, which is equivalent to 8%
+# discount rate and 20 years of life time.
+# n = 20; i = 0.08; ((1+i)**n * i) / ((1+i)**n-1)
+capital_recovery_factor = 0.10185221
+co2_cost_lifetime = 694  # $/t/year for a certain life time
+co2_cost = dollar_to_eur * capital_recovery_factor * co2_cost_lifetime * 8760  # EUR/t_CO2/h/a
+
 co2_electricity_input = 366  # kWh/t-CO2
 co2_gas_input = 5.25  # GJ/t-CO2
 gj_to_kwh = 1 / 3.6e-3
-gas_efficiency = 1 / 3   # assumes heat pump COP3
+gas_efficiency = 1 / 3  # assumes heat pump COP3
 co2_convert_factor = 1 / (gj_to_kwh * co2_gas_input * gas_efficiency + co2_electricity_input)
 
 # probably in KWh/Year, right?
