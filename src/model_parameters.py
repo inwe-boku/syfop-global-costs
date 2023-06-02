@@ -1,3 +1,6 @@
+# n = 20; i = 0.08; ((1+i)**n * i) / ((1+i)**n-1)
+capital_recovery_factor = 0.10185221
+
 battery_cost = 33  # EUR/KWh/a
 hydrogen_storage_cost = 74  # EUR/kg/a
 co2_storage_cost = 0.049  # EUR/kg/a
@@ -69,9 +72,9 @@ dollar_to_eur = 0.848
 # Note: the paper assumes CRF of 7.5% and 12.5%. We use here about 10%, which is equivalent to 8%
 # discount rate and 20 years of life time.
 # n = 20; i = 0.08; ((1+i)**n * i) / ((1+i)**n-1)
-capital_recovery_factor = 0.10185221
-co2_cost_lifetime = 694  # $/t/year for a certain life time
-co2_cost = dollar_to_eur * capital_recovery_factor * co2_cost_lifetime * 8760  # EUR/t_CO2/h/a
+co2_cost_lifetime = 694  # $/(t/year) for a certain life time
+co2_cost = dollar_to_eur * capital_recovery_factor * co2_cost_lifetime * 8760  # EUR/(t_CO2/h)/a
+# XXX OPEX missing
 
 co2_electricity_input = 366  # kWh/t-CO2
 co2_gas_input = 5.25  # GJ/t-CO2
