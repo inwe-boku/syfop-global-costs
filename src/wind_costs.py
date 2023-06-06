@@ -1,6 +1,6 @@
 import pandas as pd
 
-# CAPEX of reference turbine for each wind class and year in EUR/kW
+# CAPEX of reference turbine for each wind class and year in EUR/kW (Table 4)
 CAPEX_R = pd.DataFrame(
     {
         1: [1080, 1034, 988, 914, 840, 811, 782],
@@ -35,7 +35,21 @@ COST_PER_M_HIGH = 0.016
 
 
 def wind_costs(wind_class, height, year):
-    """
+    """Calculates CAPEX for a theoretical wind turbine using the method from:
+
+    Satymov, R., Bogdanov, D., & Breyer, C. (2022). Global-local analysis of cost-optimal onshore
+    wind turbine configurations considering wind classes and hub heights. In Energy (Vol. 256, p.
+    124629). Elsevier BV. https://doi.org/10.1016/j.energy.2022.124629
+
+    Parameters
+    ----------
+    wind_class : int
+        whether turbine is for low / high wind speeds, value must be 1, 2 or 3
+    height : float
+        height of the turbine in m
+    year : int
+        year of costs, must be in 2020-2050 and dividable by 5
+
     """
     height_ref = HEIGHT_REF[wind_class]
 
