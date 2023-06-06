@@ -89,8 +89,9 @@ def test_compare_wind_costs_to_appendix():
     for wind_class, capex in enumerate((capex_class1, capex_class2, capex_class3), start=1):
         for year, capex_height in capex.iterrows():
             for height, costs_expected in capex_height.items():
-                if height == 120:
-                    # there seems to be a mistake
+                if height == 120 and wind_class == 1:
+                    # there seems to be a mistake in the values from the appendix, authors have
+                    # been contacted
                     continue
 
                 costs = wind_costs(wind_class, height, year)
