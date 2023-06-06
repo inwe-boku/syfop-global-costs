@@ -2,6 +2,7 @@
 in CHUNK_SIZE
 """
 
+import re
 import io
 import sys
 import time
@@ -90,7 +91,18 @@ def optimize_network_single(param):
 
     logging.debug(f"Solver output: \n\n{output}")
 
-    return filter_solution(network.model.solution, x=pv_input_flow.x, y=pv_input_flow.y)
+    solution = filter_solution(network.model.solution, x=pv_input_flow.x, y=pv_input_flow.y)
+
+    # Parse log output to get run time from solver. gurobipy might provide this value directly, but
+    # linopy does not pass it through. If the pattern is not found, let's simply ignore it.
+    pattern = r"Solved in \d+ iterations and ([0-9.]+) seconds ([0-9.]+ work units)"
+    output_match = re.search(pattern, output)
+    runtime_solver = float(output_match.group(1)) if output_match else float('nan')
+
+    solution['runtime_solver'] = runtime_solver
+    solution['runtime'] = time.time() - t0
+
+    return solution
 
 
 def optimize_network_chunk(x_start_idx, y_start_idx):
