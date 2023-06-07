@@ -15,6 +15,7 @@ from src.util import create_folder
 
 from src.config import YEARS
 from src.config import MONTHS
+from src.config import INPUT_DIR
 from src.config import CHUNK_SIZE
 from src.config import INTERIM_DIR
 from src.config import NUM_PROCESSES
@@ -134,6 +135,8 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
 
     logging.info(f"Loading time series files took {time.time() - t0}")
 
+    land_sea_mask = xr.load_dataset(INPUT_DIR / "era5" / "land_sea_mask.nc").lsm.load()
+
     param = xr.Dataset({"wind_input_flow": wind_input_flow, "pv_input_flow": pv_input_flow})
 
     i = 0
@@ -147,6 +150,10 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
 
     for param_x_coord, param_x in param.groupby("x"):
         for param_y_coord, param_y in param_x.groupby("y"):
+            # exclude pixels which are fully covered by sea area...
+            if land_sea_mask.sel(longitude=param_x_coord, latitude=param_y_coord) == 0.:
+                continue
+
             t0 = time.time()
             logger.info(
                 f"Computing pixel number {i}/{num_pixels} for chunk "
