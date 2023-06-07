@@ -97,10 +97,10 @@ def optimize_network_single(param):
     # linopy does not pass it through. If the pattern is not found, let's simply ignore it.
     pattern = r"Solved in \d+ iterations and ([0-9.]+) seconds ([0-9.]+ work units)"
     output_match = re.search(pattern, output)
-    runtime_solver = float(output_match.group(1)) if output_match else float('nan')
+    runtime_solver = float(output_match.group(1)) if output_match else float("nan")
 
-    solution['runtime_solver'] = runtime_solver
-    solution['runtime'] = time.time() - t0
+    solution["runtime_solver"] = runtime_solver
+    solution["runtime"] = time.time() - t0
 
     return solution
 
@@ -156,7 +156,7 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
             param = param_y.expand_dims(x=1, y=1).drop_vars(("lon", "lat"))
             solutions.append(optimize_network_single(param))
 
-            runtime =time.time() - t0
+            runtime = time.time() - t0
             logging.info(
                 f"Pixel runtime for pixel {param_x_coord}/{param_y_coord} "
                 f"took: {runtime}s (about {runtime / NUM_PROCESSES}s per pixel)"
