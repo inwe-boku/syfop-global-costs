@@ -37,7 +37,17 @@ from src.model_parameters import methanol_synthesis_input_proportions
 
 
 # variables to be saved in the final NetCDF file
-OUTPUT_VARS = ["size_wind", "size_solar_pv", "size_storage_co2"]
+OUTPUT_VARS = [
+    "size_solar_pv",
+    "size_wind",
+    "size_storage_electricity",
+    "size_storage_electrolizer",
+    "size_electrolizer",
+    "size_storage_co2",
+    "size_co2",
+    "size_storage_methanol_synthesis",
+    "size_methanol_synthesis",
+]
 
 
 def filter_solution(solution, x, y):
@@ -151,7 +161,7 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
     for param_x_coord, param_x in param.groupby("x"):
         for param_y_coord, param_y in param_x.groupby("y"):
             # exclude pixels which are fully covered by sea area...
-            if land_sea_mask.sel(longitude=param_x_coord, latitude=param_y_coord) == 0.:
+            if land_sea_mask.sel(longitude=param_x_coord, latitude=param_y_coord) == 0.0:
                 continue
 
             t0 = time.time()
