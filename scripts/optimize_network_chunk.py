@@ -161,14 +161,16 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
     for param_x_coord, param_x in param.groupby("x"):
         for param_y_coord, param_y in param_x.groupby("y"):
             # exclude pixels which are fully covered by sea area...
+            pixel_name = (
+                f"pixel {param_x_coord}/{param_y_coord} (number {i}/{num_pixels}) "
+                f"for chunk {x_start_idx},{y_start_idx}"
+            )
             if land_sea_mask.sel(longitude=param_x_coord, latitude=param_y_coord) == 0.0:
+                logger.info(f"Skipping because not on land area: {pixel_name}...")
                 continue
 
             t0 = time.time()
-            logger.info(
-                f"Computing pixel number {i}/{num_pixels} for chunk "
-                f"{x_start_idx},{y_start_idx}..."
-            )
+            logger.info(f"Computing {pixel_name}...")
 
             param = param_y.expand_dims(x=1, y=1).drop_vars(("lon", "lat"))
             solutions.append(optimize_network_single(param))
