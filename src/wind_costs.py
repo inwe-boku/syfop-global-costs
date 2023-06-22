@@ -10,6 +10,17 @@ CAPEX_R = pd.DataFrame(
     index=[2020, 2025, 2030, 2035, 2040, 2045, 2050],
 )
 
+# Operational costs (Table 4)
+OPEX_R = {
+    2020: 23.0,
+    2025: 21.2,
+    2030: 20.0,
+    2035: 19.3,
+    2040: 18.8,
+    2045: 18.3,
+    2050: 18.0,
+}
+
 # Share of CAPEX used for tower (see Table 5)
 TOWER_SHARE = {
     1: 20.0e-2,
@@ -66,10 +77,8 @@ def wind_costs(wind_class, height, year):
     tower_factor = max(tower_factor, 0.5)
 
     capex_r = CAPEX_R[wind_class][year]
+    tower_share = TOWER_SHARE[wind_class]
 
-    capex = (
-        TOWER_SHARE[wind_class] * tower_factor * capex_r
-        + (1 - TOWER_SHARE[wind_class]) * capex_r
-    )
+    capex = tower_share * tower_factor * capex_r + (1 - tower_share) * capex_r
 
     return capex

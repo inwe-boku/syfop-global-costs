@@ -1,3 +1,5 @@
+from src.wind_costs import wind_costs, OPEX_R
+
 # We assume 8% discount rate and 20y life time.
 # n = 20; i = 0.08; ((1+i)**n * i) / ((1+i)**n-1)
 capital_recovery_factor = 0.10185221
@@ -10,9 +12,8 @@ electrolizer_cost = 30  # kW/a
 pv_cost = 53  # EUR/kW/a
 # wind_cost = 128  # EUR/kW/a
 
-# XXX wind class 3 is pretty arbitrary, 2020 too
-from src.wind_costs import wind_costs
-wind_cost = capital_recovery_factor * wind_costs(3, 80, 2020)
+# XXX wind class 1 is pretty arbitrary, 2020 too
+wind_cost = capital_recovery_factor * wind_costs(1, 80, 2020) + OPEX_R[2020]
 
 electrolizer_efficiency_multiplier = 1
 # electrolizer_efficiency = 0.63 * electrolizer_efficiency_multiplier
