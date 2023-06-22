@@ -1,3 +1,4 @@
+import os
 import cdsapi
 import logging
 
@@ -44,4 +45,7 @@ longitude = xr.DataArray(land_sea_mask.longitude)
 assert longitude[-1] == 539.75, "csdapi bug has been fixed or changed, workaround needs adaption"
 longitude[-1] = longitude[-1] - 360
 land_sea_mask["longitude"] = longitude
-land_sea_mask.to_netcdf(INPUT_DIR / "era5" / "land_sea_mask.nc")
+# I think we cannot write directly to the same file
+land_sea_mask.to_netcdf(INPUT_DIR / "era5" / "land_sea_mask_fixed.nc")
+land_sea_mask.close()
+os.replace(INPUT_DIR / "era5" / "land_sea_mask_fixed.nc", INPUT_DIR / "era5" / "land_sea_mask.nc")
