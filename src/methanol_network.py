@@ -71,7 +71,7 @@ def create_methanol_network(
         costs=co2_cost,
         convert_factor=co2_convert_factor,
         output_unit="t",
-        storage=Storage(**storage_params["hydrogen"]),
+        storage=Storage(**storage_params["co2"]),
     )
 
     methanol_synthesis = Node(
