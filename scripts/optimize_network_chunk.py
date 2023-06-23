@@ -104,9 +104,10 @@ def optimize_network_single(param):
 
     solution = filter_solution(network.model.solution, x=pv_input_flow.x, y=pv_input_flow.y)
 
+    # TODO this works only for Gurobi
     # Parse log output to get run time from solver. gurobipy might provide this value directly, but
     # linopy does not pass it through. If the pattern is not found, let's simply ignore it.
-    pattern = r"Solved in \d+ iterations and ([0-9.]+) seconds ([0-9.]+ work units)"
+    pattern = r"Solved in \d+ iterations and ([0-9.]+) seconds \([0-9.]+ work units\)"
     output_match = re.search(pattern, output)
     runtime_solver = float(output_match.group(1)) if output_match else float("nan")
 
