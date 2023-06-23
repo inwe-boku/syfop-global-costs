@@ -79,8 +79,10 @@ dollar_to_eur = 0.848
 # discount rate and 20 years of life time.
 # n = 20; i = 0.08; ((1+i)**n * i) / ((1+i)**n-1)
 co2_cost_lifetime = 694  # $/(t/year) for a certain life time
-co2_cost = dollar_to_eur * capital_recovery_factor * co2_cost_lifetime * 8760  # EUR/(t_CO2/h)/a
-# XXX OPEX missing
+co2_cost_opex = 26  # $/t-CO2 (this assumes 90% utilization, i.e. variable costs are included)
+co2_cost = dollar_to_eur * (
+    (capital_recovery_factor * co2_cost_lifetime + co2_cost_opex) * 8760
+)  # EUR/(t_CO2/h)/a
 
 co2_electricity_input = 366  # kWh/t-CO2
 co2_gas_input = 5.25  # GJ/t-CO2
