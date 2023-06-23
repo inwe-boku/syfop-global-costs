@@ -111,6 +111,7 @@ def optimize_network_single(param):
     output_match = re.search(pattern, output)
     runtime_solver = float(output_match.group(1)) if output_match else float("nan")
 
+    logging.info(f"Solver runtime: {runtime_solver}")
     solution["runtime_solver"] = runtime_solver
     solution["runtime"] = time.time() - t0
 
