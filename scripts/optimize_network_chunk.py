@@ -9,6 +9,7 @@ import time
 import logging
 from contextlib import redirect_stdout
 
+import numpy as np
 import xarray as xr
 
 from src.util import create_folder
@@ -162,6 +163,7 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
 
     for param_x_coord, param_x in param.groupby("x"):
         for param_y_coord, param_y in param_x.groupby("y"):
+            i += 1
             # exclude pixels which are fully covered by sea area...
             pixel_name = (
                 f"pixel {param_x_coord}/{param_y_coord} (number {i}/{num_pixels}) "
@@ -169,6 +171,10 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
             )
             if land_sea_mask.sel(longitude=param_x_coord, latitude=param_y_coord) == 0.0:
                 logger.info(f"Skipping because not on land area: {pixel_name}...")
+                # adding empty solutions should make merging easier
+                emtpy_solution = xr.Dataset({k: np.nan for k in OUTPUT_VARS})
+                emtpy_solution = emtpy_solution.expand_dims(x=[param_x_coord], y=[param_y_coord])
+                solutions.append(emtpy_solution)
                 continue
 
             t0 = time.time()
@@ -182,7 +188,6 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
                 f"Pixel runtime for pixel {param_x_coord}/{param_y_coord} "
                 f"took: {runtime}s (about {runtime / NUM_PROCESSES}s per pixel)"
             )
-            i += 1
 
     # TODO check if xr.concat() would be faster (supports only one dimension)
     out = xr.combine_by_coords(solutions)
