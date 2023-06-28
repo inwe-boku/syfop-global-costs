@@ -89,14 +89,14 @@ def optimize_network_single(param):
         # that the overhead for reading the file is larger then the benefit.
         network.optimize(
             "gurobi",
+            # "cplex",
             warmstart_fn=None,
             # basis_fn=INTERIM_DIR / 'model.lp',
             basis_fn=None,
             # this has been found wiht grbtune - Gurobi's command line tuning tool
+            BarHomogeneous=1,
             Method=2,
-            ScaleFlag=0,
-            PreDual=1,
-            PrePasses=1,
+            Aggregate=0,
         )
         # XXX do we need the optimizer's log output?
         output = buf.getvalue()
