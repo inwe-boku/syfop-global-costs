@@ -122,6 +122,9 @@ def optimize_network_single(param):
 
 
 def optimize_network_chunk(x_start_idx, y_start_idx):
+    """This function computes the result for a chunk of pixels in a simple for-loop and stores the
+    result in a single NetCDF file. Multiple instances of this function can be run in parallel in
+    separate processes."""
     logger = logging.getLogger(f"optimization_{x_start_idx}_{y_start_idx}")
     logger.info(f"Starting computation for chunk {x_start_idx},{y_start_idx}...")
 
