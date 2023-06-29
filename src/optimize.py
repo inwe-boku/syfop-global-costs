@@ -45,13 +45,7 @@ OUTPUT_VARS = [
 ]
 
 
-def filter_solution(solution, x, y):
-    """Filter solution Dataset object: Storing all variables would be too much data, because each
-    solution contains many time series."""
-    return solution[OUTPUT_VARS].expand_dims(x=x, y=y)
-
-
-def optimize_network_single(param):
+def optimize_pixel(param):
     """Optimize one pixel."""
     logging.info("Start optimization...")
 
@@ -99,7 +93,7 @@ def optimize_network_single(param):
 
     logging.debug(f"Solver output: \n\n{output}")
 
-    solution = filter_solution(network.model.solution, x=pv_input_flow.x, y=pv_input_flow.y)
+    solution = network.model.solution
 
     # TODO this works only for Gurobi
     # Parse log output to get run time from solver. gurobipy might provide this value directly, but
@@ -112,7 +106,9 @@ def optimize_network_single(param):
     solution["runtime_solver"] = runtime_solver
     solution["runtime"] = time.time() - t0
 
-    return solution
+    solution = solution.expand_dims(x=pv_input_flow.x, y=pv_input_flow.y)
+
+    return solution, network
 
 
 def optimize_network_chunk(x_start_idx, y_start_idx):
@@ -126,22 +122,16 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
 
     t0 = time.time()
 
-    wind_raw = load_wind()
-    pv_raw = load_pv()
-
     x_slice = slice(x_start_idx, x_start_idx + CHUNK_SIZE[0])
     y_slice = slice(y_start_idx, y_start_idx + CHUNK_SIZE[1])
 
-    wind_input_flow = wind_raw.isel(x=x_slice, y=y_slice)
-    wind_input_flow = wind_input_flow["specific generation"].load()
-
-    pv_input_flow = pv_raw.isel(x=x_slice, y=y_slice)
-    pv_input_flow = pv_input_flow["specific generation"].load()
+    wind_input_flow = load_wind().isel(x=x_slice, y=y_slice).load()
+    pv_input_flow = load_pv().isel(x=x_slice, y=y_slice).load()
+    land_sea_mask = load_land_sea_mask().load()
 
     logging.info(f"Loading time series files took {time.time() - t0}")
 
-    land_sea_mask = load_land_sea_mask().load()
-
+    # this makes the for loop easier
     param = xr.Dataset({"wind_input_flow": wind_input_flow, "pv_input_flow": pv_input_flow})
 
     i = 0
@@ -173,7 +163,10 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
             logger.info(f"Computing {pixel_name}...")
 
             param = param_y.expand_dims(x=1, y=1).drop_vars(("lon", "lat"))
-            solutions.append(optimize_network_single(param))
+
+            solution = optimize_pixel(param)[0]
+
+            solutions.append(solution[OUTPUT_VARS])
 
             runtime = time.time() - t0
             logging.info(
