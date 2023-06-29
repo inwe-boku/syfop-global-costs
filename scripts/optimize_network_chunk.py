@@ -94,9 +94,11 @@ def optimize_network_single(param):
             # basis_fn=INTERIM_DIR / 'model.lp',
             basis_fn=None,
             # this has been found wiht grbtune - Gurobi's command line tuning tool
-            BarHomogeneous=1,
             Method=2,
-            Aggregate=0,
+            BarHomogeneous=1,
+            Aggregate=2,
+            AggFill=0,
+            PrePasses=8,
         )
         # XXX do we need the optimizer's log output?
         output = buf.getvalue()
