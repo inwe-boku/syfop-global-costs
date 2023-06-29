@@ -14,12 +14,12 @@ import xarray as xr
 
 from src.util import create_folder
 
-from src.config import YEARS
-from src.config import MONTHS
-from src.config import INPUT_DIR
 from src.config import CHUNK_SIZE
-from src.config import INTERIM_DIR
 from src.config import NUM_PROCESSES
+
+from src.load_data import load_pv
+from src.load_data import load_wind
+from src.load_data import load_land_sea_mask
 
 from src.logging_config import setup_logging
 from src.methanol_network import create_methanol_network
@@ -126,16 +126,9 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
     logger.info("Load renewable time series...")
 
     t0 = time.time()
-    wind_raw = xr.open_mfdataset(
-        [
-            INTERIM_DIR / "wind" / f"wind_{year}-{month:02d}.nc"
-            for month in MONTHS
-            for year in YEARS
-        ]
-    )
-    pv_raw = xr.open_mfdataset(
-        [INTERIM_DIR / "pv" / f"pv_{year}-{month:02d}.nc" for month in MONTHS for year in YEARS]
-    )
+
+    wind_raw = load_wind()
+    pv_raw = load_pv()
 
     x_slice = slice(x_start_idx, x_start_idx + CHUNK_SIZE[0])
     y_slice = slice(y_start_idx, y_start_idx + CHUNK_SIZE[1])
@@ -148,7 +141,7 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
 
     logging.info(f"Loading time series files took {time.time() - t0}")
 
-    land_sea_mask = xr.load_dataset(INPUT_DIR / "era5" / "land_sea_mask.nc").lsm.load()
+    land_sea_mask = load_land_sea_mask().load()
 
     param = xr.Dataset({"wind_input_flow": wind_input_flow, "pv_input_flow": pv_input_flow})
 
