@@ -33,6 +33,8 @@ from src.model_parameters import methanol_synthesis_input_proportions
 
 # variables to be saved in the final NetCDF file
 OUTPUT_VARS = [
+    "runtime",
+    "runtime_solver",
     "size_solar_pv",
     "size_wind",
     "size_storage_electricity",
