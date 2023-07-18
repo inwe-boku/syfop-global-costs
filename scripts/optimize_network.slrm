@@ -1,0 +1,25 @@
+#!/bin/bash
+#
+#SBATCH --job-name          optimize_network
+#SBATCH --nodes             1                   # number of nodes
+#SBATCH --time              00:01:00            # time limit
+
+
+##SBATCH --ntasks-per-node   16
+##SBATCH --ntasks-per-core   1
+##SBATCH --mail-type=BEGIN              # first have to state the type of event to occur
+##SBATCH --mail-user=user@example.com   # and then your email address
+
+
+cd $DATA/syfop-global-costs
+
+eval "$(micromamba shell hook --shell bash --prefix "$HOME/micromamba/" 2> /dev/null)"
+micromamba activate syfop
+
+export PYTHONPATH=$PYTHONPATH:$DATA/syfop-global-costs/syfop:$DATA/syfop-global-costs/
+export GRB_LICENSE_FILE=$HOME/gurobi.lic
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/gurobi1001/linux64/lib
+
+# TODO at the moment this is just a single process, but we could run multiple instances on one
+# node, maybe we should call optimize_network.py here? Or use ntasks parameter somehow?
+python scripts/optimize_network_chunk.py $1 $2
