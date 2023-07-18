@@ -47,14 +47,27 @@ OUTPUT_VARS = [
 ]
 
 
-def optimize_pixel(param):
-    """Optimize one pixel."""
+def optimize_pixel(wind_input_flow, pv_input_flow, model_file=None):
+    """Optimize one pixel.
+
+    Parameters
+    ----------
+    wind_input_flow : xr.DataArray
+        wind time series
+    pv_input_flow : xr.DataArray
+        PV time series
+    model_file :
+        writes a LP file for further use in Gurobi command line tools (might be ignored for some
+        solvers, see documentation of linopy)
+
+    """
     logging.info("Start optimization...")
 
     t0 = time.time()
 
-    wind_input_flow = param.wind_input_flow
-    pv_input_flow = param.pv_input_flow
+    # TODO model parameters should be packed into a named tuple or so and then passed to this
+    # function as parameter
+
     network = create_methanol_network(
         pv_input_flow=pv_input_flow,
         pv_cost=pv_cost,
@@ -80,15 +93,14 @@ def optimize_pixel(param):
         network.optimize(
             "gurobi",
             # "cplex",
-            warmstart_fn=None,
-            # basis_fn=INTERIM_DIR / 'model.lp',
-            basis_fn=None,
+            warmstart_fn=None,  # this does not seem to speedup things
+            basis_fn=model_file,
             # this has been found wiht grbtune - Gurobi's command line tuning tool
-            Method=2,
+            #Method=2,
             BarHomogeneous=1,
-            Aggregate=2,
-            AggFill=0,
-            PrePasses=8,
+            #Aggregate=2,
+            #AggFill=0,
+            #PrePasses=8,
         )
         # XXX do we need the optimizer's log output?
         output = buf.getvalue()
@@ -111,6 +123,20 @@ def optimize_pixel(param):
     solution = solution.expand_dims(x=pv_input_flow.x, y=pv_input_flow.y)
 
     return solution, network
+
+
+def optimize_pixel_by_coord(x, y, model_file=None):
+    """Optimize a single pixel instead of a chunk of pixels at once. Helpful for quick
+    experiments."""
+    logging.info("Load renewable time series...")
+    wind_input_flow = load_wind().isel(x=[x], y=[y]).load()
+    pv_input_flow = load_pv().isel(x=[x], y=[y]).load()
+
+    return optimize_pixel(
+        wind_input_flow=wind_input_flow,
+        pv_input_flow=pv_input_flow,
+        model_file=model_file,
+    )
 
 
 def optimize_network_chunk(x_start_idx, y_start_idx):
@@ -166,7 +192,10 @@ def optimize_network_chunk(x_start_idx, y_start_idx):
 
             param = param_y.expand_dims(x=1, y=1).drop_vars(("lon", "lat"))
 
-            solution = optimize_pixel(param)[0]
+            solution, _ = optimize_pixel(
+                wind_input_flow=param.wind_input_flow,
+                pv_input_flow=param.pv_input_flow,
+            )
 
             solutions.append(solution[OUTPUT_VARS])
 
