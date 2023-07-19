@@ -30,8 +30,8 @@ def run_jobs_slurm(x_range, y_range):
     for x_start_idx in x_range:
         for y_start_idx in y_range:
             command = [
-                "python",
-                "scripts/optimize_network_chunk.py",
+                "sbatch",
+                "scripts/optimize_network.slrm",
                 str(x_start_idx),
                 str(y_start_idx),
             ]
