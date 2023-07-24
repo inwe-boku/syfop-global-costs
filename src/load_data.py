@@ -21,12 +21,10 @@ def load_network_solution():
 
 
 def _load_renewable_timeseries(technology):
-    fnames = (
-        INTERIM_DIR / f"{technology}" / f"{technology}_{year}-{month:02d}.nc"
-        for year in YEARS
-        for month in MONTHS
-    )
-    return xr.open_mfdataset(fnames)["specific generation"]
+    assert len(MONTHS) == 12
+    years = "-".join(str(year) for year in YEARS)
+    fname =INTERIM_DIR / f"{technology}" / f"{technology}_{years}.nc"
+    return xr.open_dataarray(fname)
 
 
 def load_pv():
