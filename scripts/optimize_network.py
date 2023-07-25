@@ -5,7 +5,7 @@ import argparse
 import subprocess
 
 from multiprocessing import Pool
-from src.util import get_chunk_indices
+from src.util import iter_chunk_indices
 from src.config import NUM_PROCESSES
 from src.logging_config import setup_logging
 
@@ -64,8 +64,7 @@ def main():
     if args.chunks:
         chunks = args.chunks
     else:
-        x_range, y_range = get_chunk_indices()
-        chunks = [(x_start_idx, y_start_idx) for x_start_idx in x_range for y_start_idx in y_range]
+        chunks = list(iter_chunk_indices())
 
     runner = run_jobs_slurm if args.vsc else run_chunk_processes
     runner(chunks)
