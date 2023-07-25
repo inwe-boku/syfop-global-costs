@@ -1,4 +1,10 @@
 #!/bin/bash
+#
+# This file is responsible for one VSC job. The script optimize_network.py can be used to create
+# multiple jobs at once. See documentation there for more information.
+#
+# TODO set parameters there via environment variables? Calculate run time from number of pixels?
+#
 #SBATCH --job-name          optimize_network
 #SBATCH --nodes             1                   # number of nodes
 #SBATCH --time              00:30:00            # time limit
@@ -19,6 +25,7 @@ export PYTHONPATH=$PYTHONPATH:$DATA/syfop-global-costs/syfop:$DATA/syfop-global-
 export GRB_LICENSE_FILE=$HOME/gurobi.lic
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/gurobi1001/linux64/lib
 
-# TODO at the moment this is just a single process, but we could run multiple instances on one
-# node, maybe we should call optimize_network.py here? Or use ntasks parameter somehow?
-python scripts/optimize_network_chunk.py $1 $2
+# TODO should we use ntasks parameter somehow for parallel subprocesses to separate recourses
+# better? Or not use so many SLURM jobs in the first place but do it differently? Use the array
+# mode by SLURM?
+python scripts/optimize_network.py $@
