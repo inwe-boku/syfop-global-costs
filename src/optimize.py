@@ -47,7 +47,7 @@ OUTPUT_VARS = [
 ]
 
 
-def optimize_pixel(wind_input_flow, pv_input_flow, model_file=None):
+def optimize_pixel(wind_input_flow, pv_input_flow, model_file=None, **solver_params):
     """Optimize one pixel.
 
     Parameters
@@ -59,6 +59,8 @@ def optimize_pixel(wind_input_flow, pv_input_flow, model_file=None):
     model_file :
         writes a LP file for further use in Gurobi command line tools (might be ignored for some
         solvers, see documentation of linopy)
+    solver_params: dict
+        passed to linopy for solver
 
     """
     logging.info("Start optimization...")
@@ -91,16 +93,28 @@ def optimize_pixel(wind_input_flow, pv_input_flow, model_file=None):
         # for warmstart_fn but it does not speed up the optimization - it is a bit slower. I assume
         # that the overhead for reading the file is larger then the benefit.
         network.optimize(
-            "gurobi",
-            # "cplex",
-            warmstart_fn=None,  # this does not seem to speedup things
-            basis_fn=model_file,
+            # "gurobi",
+            "cplex",
+
+            # warmstart_fn=None,  # this does not seem to speedup things
+            # basis_fn=model_file,
+
+            # Cplex parameters found with Cplex tuning:
+            **{
+                "simplex.perturbation.constant": 1e-6,
+                "simplex.perturbation.indicator": True,
+            },
+
+            # Gurobi parameters:
             # this has been found wiht grbtune - Gurobi's command line tuning tool
-            #Method=2,
-            BarHomogeneous=1,
-            #Aggregate=2,
-            #AggFill=0,
-            #PrePasses=8,
+            # BarHomogeneous=1,
+            # ScaleFlag=0,
+            # Method=2,
+            # Aggregate=2,
+            # AggFill=0,
+            # PrePasses=8,
+
+            **solver_params,
         )
         # XXX do we need the optimizer's log output?
         output = buf.getvalue()
@@ -125,7 +139,7 @@ def optimize_pixel(wind_input_flow, pv_input_flow, model_file=None):
     return solution, network
 
 
-def optimize_pixel_by_coord(x, y, model_file=None):
+def optimize_pixel_by_coord(x, y, model_file=None, **solver_params):
     """Optimize a single pixel instead of a chunk of pixels at once. Helpful for quick
     experiments."""
     logging.info("Load renewable time series...")
@@ -136,6 +150,7 @@ def optimize_pixel_by_coord(x, y, model_file=None):
         wind_input_flow=wind_input_flow,
         pv_input_flow=pv_input_flow,
         model_file=model_file,
+        **solver_params,
     )
 
 
