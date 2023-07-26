@@ -10,6 +10,7 @@ import xarray as xr
 from src.util import create_folder
 
 from src.config import CHUNK_SIZE
+from src.config import INTERIM_DIR
 from src.config import NUM_PROCESSES
 
 from src.load_data import load_pv
@@ -96,7 +97,8 @@ def optimize_pixel(wind_input_flow, pv_input_flow, model_file=None, **solver_par
             # "gurobi",
             "cplex",
 
-            # warmstart_fn=None,  # this does not seem to speedup things
+            # this does not seem to speedup things for Gurobi, but for Cplex
+            warmstart_fn=str(INTERIM_DIR / 'solution.sol'),
             # basis_fn=model_file,
 
             # Cplex parameters found with Cplex tuning:
