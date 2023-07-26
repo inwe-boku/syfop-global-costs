@@ -33,7 +33,7 @@ def run_jobs_slurm(chunks):
         command = [
             "sbatch",
             "scripts/optimize_network.slrm",
-            "--chunks" + "  ".join(f"{x},{y}" for (x, y) in chunks[i : i + NUM_PROCESSES]),
+            "--chunks " + "  ".join(f"{x},{y}" for (x, y) in chunks[i : i + NUM_PROCESSES]),
         ]
         subprocess.run(command, check=True)
 
