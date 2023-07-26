@@ -13,6 +13,7 @@ pv_cost = 53  # EUR/kW/a
 # wind_cost = 128  # EUR/kW/a
 
 # XXX wind class 1 is pretty arbitrary, 2020 too
+# height=80m is taken from atlite, since we use Vestas v90 at the moment
 wind_cost = capital_recovery_factor * wind_costs(1, 80, 2020) + OPEX_R[2020]
 
 electrolizer_efficiency_multiplier = 1

@@ -23,7 +23,7 @@ FIGURES_DIR = DATA_DIR / "figures"
 
 FIGSIZE = (12, 7.5)
 
-# how many tiles in x/y are computed in one process at once
+# how many tiles in x/y are computed in one process at once and then stored in one file
 CHUNK_SIZE = 5, 5
 
 # Balkan
@@ -34,4 +34,4 @@ CHUNK_SIZE = 5, 5
 X_IDX_FROM_TO = 740, 800
 Y_IDX_FROM_TO = 560, 620
 
-NUM_PROCESSES = 10
+NUM_PROCESSES = 8
