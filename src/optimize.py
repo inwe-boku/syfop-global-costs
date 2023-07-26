@@ -97,8 +97,8 @@ def optimize_pixel(wind_input_flow, pv_input_flow, model_file=None, **solver_par
             # "gurobi",
             "cplex",
 
-            # this does not seem to speedup things for Gurobi, but for Cplex
-            warmstart_fn=str(INTERIM_DIR / 'solution.sol'),
+            # this does not seem to speedup things
+            # warmstart_fn=str(INTERIM_DIR / 'solution.sol'),
             # basis_fn=model_file,
 
             # Cplex parameters found with Cplex tuning:
