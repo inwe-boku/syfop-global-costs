@@ -125,12 +125,22 @@ def optimize_pixel(wind_input_flow, pv_input_flow, model_file=None, **solver_par
 
     solution = network.model.solution
 
-    # TODO this works only for Gurobi
-    # Parse log output to get run time from solver. gurobipy might provide this value directly, but
-    # linopy does not pass it through. If the pattern is not found, let's simply ignore it.
-    pattern = r"Solved in \d+ iterations and ([0-9.]+) seconds \([0-9.]+ work units\)"
-    output_match = re.search(pattern, output)
-    runtime_solver = float(output_match.group(1)) if output_match else float("nan")
+    # Parse log output to get run time from solver.
+    patterns = (
+        # Gurobi (gurobipy might provide this value directly, but linopy does not pass it through)
+        r"Solved in \d+ iterations and ([0-9.]+) seconds \([0-9.]+ work units\)",
+
+        # Cplex
+        r"Total time on \d+ threads = ([0-9.]+) sec. \([0-9.]+ ticks\)",
+    )
+    for pattern in patterns:
+        output_match = re.search(pattern, output)
+        if output_match:
+            runtime_solver = float(output_match.group(1))
+            break
+    else:
+        # if the pattern is not found, let's simply ignore it...
+        runtime_solver = float("nan")
 
     logging.info(f"Solver runtime: {runtime_solver}")
     solution["runtime_solver"] = runtime_solver
