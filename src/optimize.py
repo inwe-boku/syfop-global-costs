@@ -9,8 +9,9 @@ import xarray as xr
 
 from src.util import create_folder
 
+from src.config import SOLVER
+from src.config import SOLVER_DEFAULTS
 from src.config import CHUNK_SIZE
-from src.config import INTERIM_DIR
 from src.config import NUM_PROCESSES
 
 from src.load_data import load_pv
@@ -48,7 +49,9 @@ OUTPUT_VARS = [
 ]
 
 
-def optimize_pixel(wind_input_flow, pv_input_flow, model_file=None, **solver_params):
+def optimize_pixel(
+    wind_input_flow, pv_input_flow, model_file=None, solver_name=SOLVER, **solver_params
+):
     """Optimize one pixel.
 
     Parameters
@@ -60,6 +63,8 @@ def optimize_pixel(wind_input_flow, pv_input_flow, model_file=None, **solver_par
     model_file :
         writes a LP file for further use in Gurobi command line tools (might be ignored for some
         solvers, see documentation of linopy)
+    solver_name : str
+        name of solver, passed to linopy (e.g. gurobi, highs, cplex, ...)
     solver_params: dict
         passed to linopy for solver
 
@@ -89,33 +94,12 @@ def optimize_pixel(wind_input_flow, pv_input_flow, model_file=None, **solver_par
 
     logging.info(f"Creating network took {time.time() - t0}")
 
+    if solver_name in SOLVER_DEFAULTS:
+        solver_params = {**SOLVER_DEFAULTS[solver_name], **solver_params}
+
     with io.StringIO() as buf, redirect_stdout(buf):
-        # basis_fn can be set to a filename ending in *.sol, the resulting file can be then used
-        # for warmstart_fn but it does not speed up the optimization - it is a bit slower. I assume
-        # that the overhead for reading the file is larger then the benefit.
         network.optimize(
-            # "gurobi",
-            "cplex",
-
-            # this does not seem to speedup things
-            # warmstart_fn=str(INTERIM_DIR / 'solution.sol'),
-            # basis_fn=model_file,
-
-            # Cplex parameters found with Cplex tuning:
-            **{
-                "simplex.perturbation.constant": 1e-6,
-                "simplex.perturbation.indicator": True,
-            },
-
-            # Gurobi parameters:
-            # this has been found wiht grbtune - Gurobi's command line tuning tool
-            # BarHomogeneous=1,
-            # ScaleFlag=0,
-            # Method=2,
-            # Aggregate=2,
-            # AggFill=0,
-            # PrePasses=8,
-
+            solver_name=solver_name,
             **solver_params,
         )
         # XXX do we need the optimizer's log output?
@@ -129,7 +113,6 @@ def optimize_pixel(wind_input_flow, pv_input_flow, model_file=None, **solver_par
     patterns = (
         # Gurobi (gurobipy might provide this value directly, but linopy does not pass it through)
         r"Solved in \d+ iterations and ([0-9.]+) seconds \([0-9.]+ work units\)",
-
         # Cplex
         r"Total time on \d+ threads = ([0-9.]+) sec. \([0-9.]+ ticks\)",
     )
