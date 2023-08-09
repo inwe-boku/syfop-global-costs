@@ -20,8 +20,24 @@ def run_chunk_processes(chunks):
     """Run optimization for chunks in parallel subprocesses."""
     pool = Pool(processes=NUM_PROCESSES)
 
-    for x_start_idx, y_start_idx in chunks:
+    results = [
         pool.apply_async(worker, ((x_start_idx, y_start_idx),))
+        for x_start_idx, y_start_idx in chunks
+    ]
+
+    # This busy loop will terminate all subprocesses if an exception occurred in at least one of
+    # them and re-raise the exception in the parent process.
+    while True:
+        for result in results:
+            result.wait(0.5)
+            try:
+                # get() blocks until ready and re-raises exceptions from the subprocess, here it is
+                # used only for re-raising, because we call it only on finished processes.
+                if result.ready():
+                    result.get()
+            except:
+                pool.terminate()
+                raise
 
     pool.close()
     pool.join()
