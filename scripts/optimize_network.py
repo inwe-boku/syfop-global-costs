@@ -1,19 +1,30 @@
 """Create the network for each pixel and run the optimization either in parallel subprocesses or
 as SLURM jobs on the VSC."""
 
+import logging
 import argparse
 import subprocess
 
 from multiprocessing import Pool
 from src.util import iter_chunk_indices
 from src.config import NUM_PROCESSES
+from src.optimize import optimize_network_chunk
 from src.logging_config import setup_logging
 
 
 def worker(params):
     x_start_idx, y_start_idx = params
-    command = ["python", "scripts/optimize_network_chunk.py", str(x_start_idx), str(y_start_idx)]
-    subprocess.run(command, check=True)
+
+    # At some point Gurobi did strange things when as subprocess with multiprocessing. We assume
+    # that something there is not threadsafe. Running a sub process with subprocess.run() solved
+    # the issue, but when pool.terminate() is executed, the child does not receive a SIGTERM
+    # signal. Let's try the direct version again and see if it works. The script
+    # optimize_network_chunk.py is obsolete if the direct version works.
+    #
+    # command = ["python", "scripts/optimize_network_chunk.py", str(x_start_idx), str(y_start_idx)]
+    # subprocess.run(command, check=True)
+
+    optimize_network_chunk(x_start_idx, y_start_idx)
 
 
 def run_chunk_processes(chunks):
@@ -29,13 +40,17 @@ def run_chunk_processes(chunks):
     # them and re-raise the exception in the parent process.
     while True:
         for result in results:
-            result.wait(0.5)
+            # A busy loop is a bad solution, it can take up to NUM_PROCESSES * 50ms until
+            # everything terminates.
+            result.wait(0.05)
             try:
                 # get() blocks until ready and re-raises exceptions from the subprocess, here it is
                 # used only for re-raising, because we call it only on finished processes.
                 if result.ready():
                     result.get()
             except:
+                logging.error("Error occurred, terminating all sub processes...")
+                pool.close()
                 pool.terminate()
                 raise
 

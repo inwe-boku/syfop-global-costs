@@ -1,5 +1,9 @@
 """Takes two indices as input and computes a chunk in the size of NxM where N,M is stored
-in CHUNK_SIZE
+in CHUNK_SIZE.
+
+This script is only needed to compute a single chunk on CMD (not a common use case) or if chunk
+computation is executed in another subprocess (see comments in optimize_network.py).
+
 """
 
 import sys
