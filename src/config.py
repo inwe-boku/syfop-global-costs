@@ -1,5 +1,7 @@
 import os
 import pathlib
+import multiprocessing
+
 
 # used for downloading, calculation of time series etc
 MONTHS = range(1, 13)
@@ -27,8 +29,7 @@ FIGSIZE = (12, 7.5)
 CHUNK_SIZE = 5, 5
 
 # solver used per default for the optimization problem
-SOLVER = "gurobi"
-
+SOLVER = "cplex"
 
 # default parameters per solver
 SOLVER_DEFAULTS = {
@@ -77,11 +78,13 @@ SOLVER_DEFAULTS = {
 
 
 # Balkan
-#X_IDX_FROM_TO = 750, 840
-#Y_IDX_FROM_TO = 530, 560
+# X_IDX_FROM_TO = 750, 840
+# Y_IDX_FROM_TO = 530, 560
 
 # Denmark
 X_IDX_FROM_TO = 740, 800
 Y_IDX_FROM_TO = 560, 620
 
-NUM_PROCESSES = 8
+
+# Number of sub processes run in parallel (on VSC this is per node)
+NUM_PROCESSES = multiprocessing.cpu_count() - 3
