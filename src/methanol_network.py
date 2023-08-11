@@ -2,6 +2,8 @@ from syfop.util import const_time_series
 from syfop.node import Node, NodeScalableInputProfile, NodeFixOutputProfile, Storage
 from syfop.network import Network
 
+from src.config import SOLVER_DIR
+
 
 # note: for now we don't distinguish between KW and KWh (per time stamp), this is okayish since we
 # have hourly time stamps
@@ -116,6 +118,7 @@ def create_methanol_network(
             methanol_demand,
         ],
         time_coords=pv_input_flow.time,
+        solver_dir=SOLVER_DIR,
     )
 
     return network
