@@ -1,7 +1,6 @@
 """Create the network for each pixel and run the optimization either in parallel subprocesses or
 as SLURM jobs on the VSC."""
 
-import logging
 import argparse
 import subprocess
 
@@ -23,36 +22,17 @@ def worker(params):
     #
     # command = ["python", "scripts/optimize_network_chunk.py", str(x_start_idx), str(y_start_idx)]
     # subprocess.run(command, check=True)
-
     optimize_network_chunk(x_start_idx, y_start_idx)
-
 
 def run_chunk_processes(chunks):
     """Run optimization for chunks in parallel subprocesses."""
     pool = Pool(processes=NUM_PROCESSES)
 
-    results = [
-        pool.apply_async(worker, ((x_start_idx, y_start_idx),))
-        for x_start_idx, y_start_idx in chunks
-    ]
-
-    # This busy loop will terminate all subprocesses if an exception occurred in at least one of
-    # them and re-raise the exception in the parent process.
-    while True:
-        for result in results:
-            # A busy loop is a bad solution, it can take up to NUM_PROCESSES * 50ms until
-            # everything terminates.
-            result.wait(0.05)
-            try:
-                # get() blocks until ready and re-raises exceptions from the subprocess, here it is
-                # used only for re-raising, because we call it only on finished processes.
-                if result.ready():
-                    result.get()
-            except:
-                logging.error("Error occurred, terminating all sub processes...")
-                pool.close()
-                pool.terminate()
-                raise
+    # map() blocks and re-reraises when all jobs are done. We could also kill all other jobs right
+    # away, but that's too complicated for now. Also note that map() might consume quite a lot of
+    # memory according to the documentation, but imap() does not re-raise exceptions from the
+    # worker process.
+    pool.map(worker, chunks)
 
     pool.close()
     pool.join()
