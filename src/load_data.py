@@ -9,7 +9,7 @@ from src.config import INTERIM_DIR
 
 
 def load_land_sea_mask():
-    return xr.open_dataset(INPUT_DIR / "era5" / "land_sea_mask.nc").lsm
+    return xr.open_dataset(INPUT_DIR / "land_sea_mask" / "land_sea_mask.nc").lsm
 
 
 def load_network_solution():

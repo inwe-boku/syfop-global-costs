@@ -4,6 +4,7 @@ import logging
 
 import xarray as xr
 
+from src.util import create_folder
 from src.config import INPUT_DIR
 
 
@@ -20,6 +21,9 @@ north, west, south, east = 90, 180, -90, -180
 # Format for downloading ERA5: North/West/South/East
 bounding_box = "{}/{}/{}/{}".format(north, west, south, east)
 
+path = create_folder("land_sea_mask", prefix=INPUT_DIR)
+fname = path / "land_sea_mask.nc"
+
 c.retrieve(
     "reanalysis-era5-single-levels",
     {
@@ -33,19 +37,20 @@ c.retrieve(
         "year": "2023",
         "area": bounding_box,
     },
-    INPUT_DIR / "era5" / "land_sea_mask.nc",
+    fname,
 )
 
 
 # For unknown reasons the longitude is 539.75°, which 360° too much, it should be 179.25°.
 # This is probably a cdsapi bug and requires a workaround, because the coordinates need to match
 # the other ERA5 data.
-land_sea_mask = xr.open_dataset(INPUT_DIR / "era5" / "land_sea_mask.nc")
+land_sea_mask = xr.open_dataset(fname)
 longitude = xr.DataArray(land_sea_mask.longitude)
 assert longitude[-1] == 539.75, "csdapi bug has been fixed or changed, workaround needs adaption"
 longitude[-1] = longitude[-1] - 360
 land_sea_mask["longitude"] = longitude
 # I think we cannot write directly to the same file
-land_sea_mask.to_netcdf(INPUT_DIR / "era5" / "land_sea_mask_fixed.nc")
+fname_tmp = fname.parent / "land_sea_mask_tmp.nc"
+land_sea_mask.to_netcdf(fname_tmp)
 land_sea_mask.close()
-os.replace(INPUT_DIR / "era5" / "land_sea_mask_fixed.nc", INPUT_DIR / "era5" / "land_sea_mask.nc")
+os.replace(fname_tmp, fname)
