@@ -1,7 +1,15 @@
-# executor: parallel
+executor:
+    dotted_path: ploomber.executors.Parallel
+    print_progress: True
+    #processes: 4  - do we want to change this?
+    #start_method TODO do we need to change this for thread-safety or so?
+
+
+on_render: src.logging_config.setup_logging
 
 meta:
     extract_upstream: False
+
 
 tasks:
     - name: download_land_sea_mask

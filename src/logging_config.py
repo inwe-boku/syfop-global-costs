@@ -17,7 +17,9 @@ def log_exception(type_, value, traceback):
 def setup_logging(fname=LOG_FILE, is_script=True):
     global setup_done
     if setup_done:
-        raise RuntimeError("Called setup_logging() twice, don't do this!")
+        # doing this once is enough, ploomber might call it multiple times
+        return
+
     setup_done = True
 
     sys.excepthook = log_exception
