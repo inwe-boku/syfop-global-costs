@@ -26,18 +26,22 @@ tasks:
 #          pv: data/interim/pv/pv_2011.nc
 #          wind: data/interim/wind/wind_2011.nc
 
-    - name: optimize_network-[[x_start_idx]]_[[y_start_idx]]
-      source: src.optimize.optimize_network_chunk
+
+    - name: optimize_network-[[chunk[0]]]-[[chunk[1]]]
+      source: src.optimize.optimize_network_chunk_ploomber
       upstream:
           #- concat_renewable_timeseries
           - download_land_sea_mask
       product:
           # TODO rename this to chunks
-          # FIXME need files
-          network_solution: data/interim/network_solution/network_solution_[[x_start_idx]]_[[y_start_idx]].nc
+          network_solution: data/interim/network_solution/network_solution_[[chunk[0]]]-[[chunk[1]]].nc
       grid:
-          x_start_idx: [740, 745]
-          y_start_idx: [560, 565, 570]
+          chunk:
+              dotted_path: src.util::iter_chunk_indices
+              x_idx_from_to: [740, 742]
+              y_idx_from_to: [560, 563]
+              chunk_size: [1, 1]
+
 
 #    - name: concat_solution_chunks
 #      source: python scripts/concat_solution_chunks.py

@@ -149,6 +149,11 @@ def optimize_pixel_by_coord(x, y, model_file=None, **solver_params):
     )
 
 
+def optimize_network_chunk_ploomber(product, upstream, chunk):
+    # XXX this is a temporary wrapper to avoid breaking the old scripts without ploomber
+    optimize_network_chunk(*chunk)
+
+
 def optimize_network_chunk(x_start_idx, y_start_idx, product=None, upstream=None):
     """This function computes the result for a chunk of pixels in a simple for-loop and stores the
     result in a single NetCDF file. Multiple instances of this function can be run in parallel in
