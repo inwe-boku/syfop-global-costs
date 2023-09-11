@@ -14,10 +14,13 @@ def create_folder(path, prefix=INTERIM_DIR):
     return path
 
 
-def iter_chunk_indices():
-    x_range = range(X_IDX_FROM_TO[0], X_IDX_FROM_TO[1], CHUNK_SIZE[0])
-    y_range = range(Y_IDX_FROM_TO[0], Y_IDX_FROM_TO[1], CHUNK_SIZE[1])
+def iter_chunk_indices(
+    x_idx_from_to=X_IDX_FROM_TO,
+    y_idx_from_to=Y_IDX_FROM_TO,
+    chunk_size=CHUNK_SIZE,
+):
+    x_range = range(x_idx_from_to[0], x_idx_from_to[1], chunk_size[0])
+    y_range = range(y_idx_from_to[0], y_idx_from_to[1], chunk_size[1])
 
-    for x_start_idx in x_range:
-        for y_start_idx in y_range:
-            yield x_start_idx, y_start_idx
+    # this could be a generator using yield, but ploomber does not suppot generators
+    return [(x_start_idx, y_start_idx) for x_start_idx in x_range for y_start_idx in y_range]
