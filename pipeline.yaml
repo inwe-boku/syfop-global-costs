@@ -1,6 +1,7 @@
-executor:
-    dotted_path: ploomber.executors.Parallel
-    print_progress: True
+executor: parallel
+
+#executor_params:
+#    print_progress: True
     #processes: 4  - do we want to change this?
     #start_method TODO do we need to change this for thread-safety or so?
 
@@ -11,6 +12,9 @@ meta:
     extract_upstream: False
 
 
+# TODO we could use serializers/unserializers to save files to NetCDF
+
+
 tasks:
     - name: download_land_sea_mask
       source: scripts.download_land_sea_mask.download_land_sea_mask
@@ -18,27 +22,34 @@ tasks:
       #static_analysis: disable
       product: data/input/land_sea_mask/land_sea_mask.nc
 
-#    - name: generate_renewable_timeseries
-#      # note: this task also downloads inputs if necessary
-#      source: scripts/generate_renewable_timeseries.py
-#      product:
-#          era5: data/input/era5/
-#          # TODO move this to a separate folder
-#          pv: data/interim/pv/pv_2011-*.nc
-#          wind: data/interim/wind/wind_2011-*.nc
-#
-#    - name: concat_renewable_timeseries
-#      source: python scripts/concat_renewable_timeseries.py
-#      upstream: generate_renewable_timeseries
-#      product:
-#          pv: data/interim/pv/pv_2011.nc
-#          wind: data/interim/wind/wind_2011.nc
+    - name: generate_renewable_timeseries-[[month]]
+      # note: this task also downloads inputs if necessary
+      source: scripts/generate_renewable_timeseries.py
+      class: ScriptRunner
+      product:
+          # FIXME products will contain a suffix from 0-11...
+          #  - remove fore loop
+          #  - use function
+          #  - use product variable to write to file
+          #  - use upstream input for next job to concat files
+          era5: data/input/era5/global-2011-[[month]].nc
+          pv: data/interim/pv/pv_2011-[[month]].nc
+          wind: data/interim/wind/wind_2011-[[month]].nc
+      grid:
+          month: [1,2,3,4,5,6,7,8,9,10,11,12]
 
+    - name: concat_renewable_timeseries
+      source: python scripts/concat_renewable_timeseries.py
+      upstream: generate_renewable_timeseries*
+      class: ScriptRunner
+      product:
+          pv: data/interim/pv/pv_2011.nc
+          wind: data/interim/wind/wind_2011.nc
 
     - name: optimize_network-[[chunk[0]]]-[[chunk[1]]]
       source: src.optimize.optimize_network_chunk_ploomber
       upstream:
-          #- concat_renewable_timeseries
+          - concat_renewable_timeseries
           - download_land_sea_mask
       product:
           # TODO rename this to chunks
@@ -51,8 +62,8 @@ tasks:
               chunk_size: [1, 1]
 
 
-#    - name: concat_solution_chunks
-#      source: python scripts/concat_solution_chunks.py
-#      upstream: optimize_network
-#      product:
-#          - data/output/network_solution
+    - name: concat_solution_chunks
+      source: scripts/concat_solution_chunks.py
+      upstream: optimize_network-*
+      product:
+          - data/output/network_solution/network_solution.nc
