@@ -1,4 +1,5 @@
 import os
+import sys
 import cdsapi
 import logging
 
@@ -59,4 +60,4 @@ def download_land_sea_mask(product):
 
 
 if __name__ == "__main__":
-    download_land_sea_mask()
+    download_land_sea_mask(sys.argv[0])
