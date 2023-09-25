@@ -60,4 +60,4 @@ def download_land_sea_mask(product):
 
 
 if __name__ == "__main__":
-    download_land_sea_mask(sys.argv[0])
+    download_land_sea_mask(sys.argv[1])

@@ -45,8 +45,8 @@ rule concat_renewable_timeseries:
 rule optimize_network:
     input:
         "data/input/land_sea_mask/land_sea_mask.nc",
-        expand("data/interim/pv/pv_2011-{month}.nc", month=range(1,12)),
-        expand("data/interim/wind/wind_2011-{month}.nc", month=range(1,12)),
+        expand("data/interim/pv/pv_2011-{month:02}.nc", month=range(1,12)),
+        expand("data/interim/wind/wind_2011-{month:02}.nc", month=range(1,12)),
         # TODO add more source files and input data files
         "src/optimize.py",
     output:
