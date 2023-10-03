@@ -10,6 +10,7 @@
 
 
 rule all:
+    # TODO does this rule need to be local?
     input:
         "data/output/network_solution/network_solution.nc"
 
@@ -33,20 +34,20 @@ rule generate_renewable_timeseries:
 
 rule concat_renewable_timeseries:
     input:
-        era5 = expand("data/input/era5/global-2011-{month:02}.nc", month=range(1,12)),
-        pv = expand("data/interim/pv/pv_2011-{month:02}.nc", month=range(1,12)),
-        wind = expand("data/interim/wind/wind_2011-{month:02}.nc", month=range(1,12)),
+        rules.generate_renewable_timeseries.output.pv,
+        rules.generate_renewable_timeseries.output.wind
     output:
-        pv = "data/interim/pv/pv_2011.nc",
-        wind = "data/interim/wind/wind_2011.nc",
+        pv = "data/interim/pv/pv_{year}.nc",
+        wind = "data/interim/wind/wind_{year}.nc",
     shell: "python scripts/concat_renewable_timeseries.py"
 
 
 rule optimize_network:
     input:
-        "data/input/land_sea_mask/land_sea_mask.nc",
-        expand("data/interim/pv/pv_2011-{month:02}.nc", month=range(1,12)),
-        expand("data/interim/wind/wind_2011-{month:02}.nc", month=range(1,12)),
+        rules.download_land_sea_mask.output,
+        expand(rules.concat_renewable_timeseries.output.pv, year=2011),
+        expand(rules.concat_renewable_timeseries.output.wind, year=2011),
+
         # TODO add more source files and input data files
         "src/optimize.py",
     output:
@@ -66,11 +67,15 @@ optimize_network_chunk(int({wildcards.x_idx}), int({wildcards.y_idx}))
 rule concat_solution_chunks:
     input:
         expand(
-            "data/interim/network_solution/network_solution_{x_idx}_{y_idx}.nc",
+            rules.optimize_network.output.network_solution,
             x_idx=range(740, 800, 5), y_idx=range(560, 620, 5)
         )
 
     output:
-        "data/output/network_solution/network_solution.nc"
+        # It's a bit weird to refer to rule "all" here, but "all" needs to be the first rule in the
+        # Snakefile to be the default rule. At the same time we can refer only to rules defined
+        # above already. So we cannot refer to an output file in rule "all" from another rule. At
+        # least there is no duplication between paths.
+        rules.all.input,
 
     shell: "python scripts/concat_solution_chunks.py"
