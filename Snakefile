@@ -53,6 +53,9 @@ rule optimize_network:
     output:
         # TODO rename this to chunks
         network_solution = "data/interim/network_solution/network_solution_{x_idx}_{y_idx}.nc"
+    resources:
+        runtime = 180,
+        mem_mb = 8000,
     shell:
         """
         python -c '
