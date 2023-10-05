@@ -42,6 +42,8 @@ coverage.xml
 
 gurobi.log
 
+.snakemake
+
 # LaTex
 *.log
 *.aux
