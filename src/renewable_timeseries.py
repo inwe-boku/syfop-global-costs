@@ -1,8 +1,12 @@
 import logging
 
+import dask
 import scipy
 import numpy as np
 import xarray as xr
+
+from src.task import task
+from src.download import download_era5
 
 
 def unstack_to_xy(timeseries, cutout):
@@ -60,4 +64,31 @@ def pv(cutout):
         # print("runtime", runtime, "total runtime", 744//CHUNKSIZE * runtime)
 
     logging.info(f"Merging...")
-    return xr.concat(pv_timeseries, dim='time')
+    return xr.concat(pv_timeseries, dim="time")
+
+
+@task
+def generate_renewable_timeseries(technology, year, month, output):
+    cutout = download_era5(year, month)
+
+    if technology == "wind":
+        generate = wind
+    elif technology == "pv":
+        generate = pv
+
+    logging.info(f"Generate {technology} time series...")
+
+    # TODO let's silence the large chunk warning for now, not sure if relevant...
+    with dask.config.set(**{"array.slicing.split_large_chunks": False}):
+        wind_timeseries = generate(cutout)
+    wind_timeseries.to_netcdf(output)
+
+
+@task
+def concat_renewable_timeseries(technology, inputs, output):
+    logging.info(f"Loading {technology} time series...")
+
+    renewable_timeseries = xr.open_mfdataset(inputs)["specific generation"]
+
+    logging.info(f"Writing {technology} time series...")
+    renewable_timeseries.to_netcdf(output)

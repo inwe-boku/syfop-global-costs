@@ -25,30 +25,55 @@ rule download_land_sea_mask:
     shell: "python {input} {output}"
 
 
-rule generate_renewable_timeseries:
-    # note: this task also downloads inputs if necessary
+rule download_era5:
     output:
-        era5 = "data/input/era5/global-{year}-{month:02}.nc",
-        pv = "data/interim/pv/pv_{year}-{month:02}.nc",
-        wind = "data/interim/wind/wind_{year}-{month:02}.nc",
-    shell: "python scripts/generate_renewable_timeseries.py {wildcards.year} {wildcards.month}"
+        "data/input/era5/global-{year}-{month}.nc",
+    run:
+        from src.download import download_era5
+        download_era5(
+            wildcards.year,
+            wildcards.month,
+        )
+
+
+rule generate_renewable_timeseries:
+    input:
+        # note: this task also downloads inputs if necessary
+        era5 = "data/input/era5/global-{year}-{month}.nc",
+    output:
+        renewable_timeseries = temp("data/interim/{technology}/{technology}-month_{year}-{month}.nc"),
+    run:
+        from src.renewable_timeseries import generate_renewable_timeseries
+        generate_renewable_timeseries(
+            technology,
+            wildcards.year,
+            wildcards.month,
+            output.renewable_timeseries,
+        )
 
 
 rule concat_renewable_timeseries:
+    # concats monthly files to a yearly file
     input:
-        rules.generate_renewable_timeseries.output.pv,
-        rules.generate_renewable_timeseries.output.wind
+        expand(
+            rules.generate_renewable_timeseries.output,
+            month=[f"{m:02d}" for m in range(1, 13)],
+            allow_missing=True
+        )
     output:
-        pv = "data/interim/pv/pv_{year}.nc",
-        wind = "data/interim/wind/wind_{year}.nc",
-    shell: "python scripts/concat_renewable_timeseries.py"
+        "data/interim/renewable_timeseries/{technology}_{year}.nc",
+    run:
+        from src.renewable_timeseries import concat_renewable_timeseries
+        concat_renewable_timeseries(technology, input, output)
 
 
 rule optimize_network:
     input:
         rules.download_land_sea_mask.output,
-        expand(rules.concat_renewable_timeseries.output.pv, year=config['year_era5']),
-        expand(rules.concat_renewable_timeseries.output.wind, year=config['year_era5']),
+        expand(rules.concat_renewable_timeseries.output,
+               year=config['year_era5'],
+               technology=['pv', 'wind']
+        ),
 
         # TODO add more source files and input data files
         "src/optimize.py",

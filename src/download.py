@@ -3,9 +3,11 @@ import logging
 import atlite
 
 from src import config
+from src.task import task
 from src.util import create_folder
 
 
+@task
 def download_era5(year, month):
     time_period = f"{year}-{month:02d}"
 
@@ -23,6 +25,7 @@ def download_era5(year, month):
         time=time_period,
     )
 
+    # TODO can we specify here some features (PV + wind) only to reduce size of stored data?
     cutout.prepare()
 
     return cutout
