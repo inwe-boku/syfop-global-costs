@@ -70,3 +70,5 @@ def task(func):
                     yaml.dump(run_data, f)
 
         return result
+
+    return task_func
