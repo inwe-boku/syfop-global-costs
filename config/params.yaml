@@ -1,0 +1,18 @@
+#
+#
+#
+
+# 
+year_era5: 2011
+
+
+# Balkan
+# x_idx_from_to: [750, 840]
+# y_idx_from_to: [530, 560]
+
+# Denmark
+x_idx_from_to: [740, 800]
+y_idx_from_to: [560, 620]
+
+
+chunk_size: [5, 5]

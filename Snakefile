@@ -8,6 +8,8 @@
 #   - turbine model
 
 
+configfile: "config/params.yaml"
+
 
 rule all:
     # TODO does this rule need to be local?
@@ -45,8 +47,8 @@ rule concat_renewable_timeseries:
 rule optimize_network:
     input:
         rules.download_land_sea_mask.output,
-        expand(rules.concat_renewable_timeseries.output.pv, year=2011),
-        expand(rules.concat_renewable_timeseries.output.wind, year=2011),
+        expand(rules.concat_renewable_timeseries.output.pv, year=config['year_era5']),
+        expand(rules.concat_renewable_timeseries.output.wind, year=config['year_era5']),
 
         # TODO add more source files and input data files
         "src/optimize.py",
@@ -71,7 +73,8 @@ rule concat_solution_chunks:
     input:
         expand(
             rules.optimize_network.output.network_solution,
-            x_idx=range(740, 800, 5), y_idx=range(560, 620, 5)
+            x_idx=range(*config['x_idx_from_to'], config['chunk_size'][0]),
+            y_idx=range(*config['y_idx_from_to'], config['chunk_size'][1])
         )
 
     output:
