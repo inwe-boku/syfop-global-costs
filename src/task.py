@@ -6,6 +6,8 @@ import subprocess
 from functools import wraps
 from datetime import datetime
 
+from src.logging_config import setup_logging
+
 
 def get_git_hash():
     """Return a GIT ref of the current repository.
@@ -31,8 +33,11 @@ def task(func):
         input_params : dict
 
         """
-        # TODO setup logger and set log file or so?
         # TODO use click?
+
+        # TODO this does not really make sense here, I guess tasks are run in the same python
+        # process... How can we have a separate log file for each task?
+        setup_logging()
 
         start_time = time.time()
 
