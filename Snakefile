@@ -101,12 +101,12 @@ rule concat_solution_chunks:
             x_idx=range(*config['x_idx_from_to'], config['chunk_size'][0]),
             y_idx=range(*config['y_idx_from_to'], config['chunk_size'][1])
         )
-
     output:
         # It's a bit weird to refer to rule "all" here, but "all" needs to be the first rule in the
         # Snakefile to be the default rule. At the same time we can refer only to rules defined
         # above already. So we cannot refer to an output file in rule "all" from another rule. At
         # least there is no duplication between paths.
         rules.all.input,
-
-    shell: "python scripts/concat_solution_chunks.py"
+    run:
+        from src.optimize import concat_solution_chunks
+        concat_solution_chunks(input, output)

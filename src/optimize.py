@@ -9,6 +9,8 @@ import xarray as xr
 
 from src.util import create_folder
 
+from src.task import task
+
 from src.config import SOLVER
 from src.config import SOLVER_DEFAULTS
 from src.config import CHUNK_SIZE
@@ -226,3 +228,9 @@ def optimize_network_chunk(x_start_idx, y_start_idx, product=None, upstream=None
     path = create_folder("network_solution")
     out.to_netcdf(path / f"network_solution_{x_start_idx}_{y_start_idx}.nc")
     logger.info(f"Chunk {x_start_idx},{y_start_idx} done!")
+
+
+@task
+def concat_solution_chunks(inputs, output):
+    out = xr.open_mfdataset(inputs)
+    out.to_netcdf(output)
