@@ -8,8 +8,8 @@ from src.util import create_folder
 
 
 @task
-def download_era5(year, month):
-    time_period = f"{year}-{month:02d}"
+def download_era5(inputs, outputs, year, month):
+    time_period = f"{year}-{month}"
 
     path = create_folder("era5", prefix=config.INPUT_DIR)
     fname = f"global-{time_period}"

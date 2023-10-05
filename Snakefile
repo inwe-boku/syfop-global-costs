@@ -31,8 +31,10 @@ rule download_era5:
     run:
         from src.download import download_era5
         download_era5(
-            wildcards.year,
-            wildcards.month,
+            inputs=input,
+            outputs=output,
+            year=wildcards.year,
+            month=wildcards.month,
         )
 
 
@@ -45,10 +47,11 @@ rule generate_renewable_timeseries:
     run:
         from src.renewable_timeseries import generate_renewable_timeseries
         generate_renewable_timeseries(
-            technology,
-            wildcards.year,
-            wildcards.month,
-            output.renewable_timeseries,
+            input,
+            output,
+            technology=technology,
+            year=wildcards.year,
+            month=wildcards.month,
         )
 
 
@@ -64,15 +67,20 @@ rule concat_renewable_timeseries:
         "data/interim/renewable_timeseries/{technology}_{year}.nc",
     run:
         from src.renewable_timeseries import concat_renewable_timeseries
-        concat_renewable_timeseries(technology, input, output)
+        concat_renewable_timeseries(
+            inputs=input,
+            outputs=output,
+            technology=technology
+        )
 
 
 rule optimize_network:
     input:
         rules.download_land_sea_mask.output,
-        expand(rules.concat_renewable_timeseries.output,
-               year=config['year_era5'],
-               technology=['pv', 'wind']
+        expand(
+            rules.concat_renewable_timeseries.output,
+            year=config['year_era5'],
+            technology=['pv', 'wind']
         ),
 
         # TODO add more source files and input data files

@@ -68,7 +68,7 @@ def pv(cutout):
 
 
 @task
-def generate_renewable_timeseries(technology, year, month, output):
+def generate_renewable_timeseries(inputs, outputs, technology, year, month):
     cutout = download_era5(year, month)
 
     if technology == "wind":
@@ -81,14 +81,14 @@ def generate_renewable_timeseries(technology, year, month, output):
     # TODO let's silence the large chunk warning for now, not sure if relevant...
     with dask.config.set(**{"array.slicing.split_large_chunks": False}):
         wind_timeseries = generate(cutout)
-    wind_timeseries.to_netcdf(output)
+    wind_timeseries.to_netcdf(outputs)
 
 
 @task
-def concat_renewable_timeseries(technology, inputs, output):
+def concat_renewable_timeseries(inputs, outputs, technology):
     logging.info(f"Loading {technology} time series...")
 
     renewable_timeseries = xr.open_mfdataset(inputs)["specific generation"]
 
     logging.info(f"Writing {technology} time series...")
-    renewable_timeseries.to_netcdf(output)
+    renewable_timeseries.to_netcdf(outputs)
