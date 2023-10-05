@@ -91,15 +91,14 @@ rule optimize_network:
     resources:
         runtime = 180,
         mem_mb = 8000,
-    shell:
-        """
-        python -c '
-from src.logging_config import setup_logging
-from src.optimize import optimize_network_chunk
-setup_logging()
-optimize_network_chunk(int({wildcards.x_idx}), int({wildcards.y_idx}))
-'
-        """
+    run:
+        from src.optimize import optimize_network_chunk
+        optimize_network_chunk(
+            inputs=input,
+            outputs=output,
+            x_start_idx=wildcards.x_idx,
+            y_start_idx=wildcards.y_idx,
+        )
 
 
 rule concat_solution_chunks:
