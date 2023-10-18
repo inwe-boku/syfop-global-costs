@@ -227,6 +227,6 @@ def optimize_network_chunk(x_start_idx, y_start_idx, inputs=None, outputs=None):
 
 
 @task
-def concat_solution_chunks(inputs, output):
+def concat_solution_chunks(inputs, outputs):
     out = xr.open_mfdataset(inputs)
-    out.to_netcdf(output)
+    out.to_netcdf(outputs[0])

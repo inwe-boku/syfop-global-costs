@@ -23,7 +23,7 @@ def load_network_solution():
 def _load_renewable_timeseries(technology):
     assert len(MONTHS) == 12
     years = "-".join(str(year) for year in YEARS)
-    fname =INTERIM_DIR / f"{technology}" / f"{technology}_{years}.nc"
+    fname = INTERIM_DIR / "renewable_timeseries" / f"{technology}_{years}.nc"
     return xr.open_dataarray(fname)
 
 
