@@ -49,7 +49,7 @@ rule generate_renewable_timeseries:
         generate_renewable_timeseries(
             input,
             output,
-            technology=technology,
+            technology=wildcards.technology,
             year=wildcards.year,
             month=wildcards.month,
         )
@@ -70,7 +70,7 @@ rule concat_renewable_timeseries:
         concat_renewable_timeseries(
             inputs=input,
             outputs=output,
-            technology=technology
+            technology=wildcards.technology
         )
 
 
@@ -96,8 +96,8 @@ rule optimize_network:
         optimize_network_chunk(
             inputs=input,
             outputs=output,
-            x_start_idx=wildcards.x_idx,
-            y_start_idx=wildcards.y_idx,
+            x_start_idx=int(wildcards.x_idx),
+            y_start_idx=int(wildcards.y_idx),
         )
 
 
