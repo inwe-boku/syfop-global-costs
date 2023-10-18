@@ -6,7 +6,7 @@ import numpy as np
 import xarray as xr
 
 from src.task import task
-from src.download import download_era5
+from src.download import create_era5_cutout
 
 
 def unstack_to_xy(timeseries, cutout):
@@ -69,7 +69,7 @@ def pv(cutout):
 
 @task
 def generate_renewable_timeseries(inputs, outputs, technology, year, month):
-    cutout = download_era5(year, month)
+    cutout = create_era5_cutout(inputs, outputs, year, month)
 
     if technology == "wind":
         generate = wind

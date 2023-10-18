@@ -41,6 +41,10 @@ def task(func):
 
         start_time = time.time()
 
+        # XXX can we check that this is not a call from another function decorated with @task?
+        # would be nice to support nested calles, but ATM this is kinda weird, it would overwrite
+        # the run yaml files and may cause other troubles
+
         run_data = {
             # 'run_id': ???
             # params <--- some params are encoded indirectly via inputs

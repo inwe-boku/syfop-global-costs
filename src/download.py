@@ -7,8 +7,7 @@ from src.task import task
 from src.util import create_folder
 
 
-@task
-def download_era5(inputs, outputs, year, month):
+def _create_era5_cutout(inputs, outputs, year, month):
     time_period = f"{year}-{month}"
 
     path = create_folder("era5", prefix=config.INPUT_DIR)
@@ -29,3 +28,13 @@ def download_era5(inputs, outputs, year, month):
     cutout.prepare()
 
     return cutout
+
+
+def create_era5_cutout(inputs, outputs, year, month):
+    # here we assume that files have been downloaded already.
+    return _create_era5_cutout(inputs, outputs, year, month)
+
+
+@task
+def download_era5(inputs, outputs, year, month):
+    return _create_era5_cutout(inputs, outputs, year, month)
