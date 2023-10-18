@@ -25,9 +25,16 @@ rule download_land_sea_mask:
     shell: "python {input} {output}"
 
 
+# Memory might be limited too, but not sure how much one process really needs.
 rule download_era5:
     output:
         "data/input/era5/global-{year}-{month}.nc",
+    # Speed here is probably mostly limited by network throughput, so more cores won't help much.
+    # At the same time, /tmp might run out of space easily if we download too much at the same
+    # time. We could change the location of temporary files, but we would have to take care about
+    # removing them afterwards. Weirdly, atlite does not remove temp files if the location is not
+    # the default one.
+    threads: 1
     run:
         from src.download import download_era5
         download_era5(
@@ -42,6 +49,7 @@ rule generate_renewable_timeseries:
     input:
         # note: this task also downloads inputs if necessary
         era5 = "data/input/era5/global-{year}-{month}.nc",
+    threads: 2
     output:
         renewable_timeseries = temp("data/interim/{technology}/{technology}-month_{year}-{month}.nc"),
     run:
@@ -60,6 +68,9 @@ rule concat_renewable_timeseries:
     input:
         expand(
             rules.generate_renewable_timeseries.output,
+            # This list comprehension here is a workaround for:
+            # https://github.com/snakemake/snakemake/issues/2470
+            # The formatting :02d does not work for inputs, so we add the zero padding here.
             month=[f"{m:02d}" for m in range(1, 13)],
             allow_missing=True
         )
