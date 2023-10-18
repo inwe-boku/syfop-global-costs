@@ -95,7 +95,7 @@ rule optimize_network:
         ),
 
         # TODO add more source files and input data files
-        "src/optimize.py",
+        #"src/optimize.py",
     output:
         # TODO rename this to chunks
         network_solution = "data/interim/network_solution/network_solution_{x_idx}_{y_idx}.nc"
