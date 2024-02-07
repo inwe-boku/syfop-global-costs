@@ -152,10 +152,28 @@ def optimize_pixel_by_coord(x, y, model_file=None, **solver_params):
 
 
 @task
-def optimize_network_chunk(x_start_idx, y_start_idx, inputs=None, outputs=None):
+def optimize_network_chunk(
+    x_start_idx,
+    y_start_idx,
+    time_period_h="1h",
+    inputs=None,
+    outputs=None,
+):
     """This function computes the result for a chunk of pixels in a simple for-loop and stores the
     result in a single NetCDF file. Multiple instances of this function can be run in parallel in
-    separate processes."""
+    separate processes.
+
+    Parameters
+    ----------
+    x_start_idx : int
+        start index of the chunk to be optimized in x dimension
+    y_start_idx : int
+        start index of the chunk to be optimized in y dimension
+    time_period_h : str
+        time resolution, '1h' will leave input unchanged (=this is a runtime performance), see
+        xarray.DataArray.resample() for other possible values
+
+    """
     logger = logging.getLogger(f"optimization_{x_start_idx}_{y_start_idx}")
     logger.info(f"Starting computation for chunk {x_start_idx},{y_start_idx}...")
 
@@ -166,8 +184,23 @@ def optimize_network_chunk(x_start_idx, y_start_idx, inputs=None, outputs=None):
     x_slice = slice(x_start_idx, x_start_idx + CHUNK_SIZE[0])
     y_slice = slice(y_start_idx, y_start_idx + CHUNK_SIZE[1])
 
-    wind_input_flow = load_wind().isel(x=x_slice, y=y_slice).load()
-    pv_input_flow = load_pv().isel(x=x_slice, y=y_slice).load()
+    def slice_and_load(input_flow):
+        # input_flow is an xarray object with dims: x, y, time
+        input_flow = input_flow.isel(x=x_slice, y=y_slice)
+        if time_period_h != "1h":
+            # this seems to load() the xarray object, but an additional load() takes only <1ms
+            input_flow = input_flow.resample(time=time_period_h).mean()
+
+            # resample().mean() is pretty slow, also in comparison to load()
+            # This is a faster alternative, which selects every second hour:
+            # input_flow.sel(time=slice(None, None, 2))
+            # But for a 5x5 chunk, the speed up is only about 600ms. Probably not worth it.
+
+        return input_flow.load()
+
+    wind_input_flow = slice_and_load(load_wind())
+    pv_input_flow = slice_and_load(load_pv())
+
     land_sea_mask = load_land_sea_mask().load()
 
     logging.info(f"Loading time series files took {time.time() - t0}")
