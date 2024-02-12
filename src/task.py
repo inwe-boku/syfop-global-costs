@@ -70,8 +70,7 @@ def task(func):
                 fname = f"{output}.run.yaml"
                 print(fname)
                 with open(fname, "w") as f:
-                    # FIXME unsafe!
-                    yaml.dump(run_data, f)
+                    yaml.safe_dump(run_data, f)
 
         return result
 
