@@ -1,5 +1,5 @@
 from syfop.util import const_time_series
-from syfop.node import Node, NodeScalableInputProfile, NodeFixOutputProfile, Storage
+from syfop.node import Node, NodeScalableInput, NodeFixOutput, Storage
 from syfop.network import Network
 
 from src.config import SOLVER_DIR
@@ -30,13 +30,13 @@ def create_methanol_network(
     # FIXME what is the unit here?
     methanol_demand_timeseries[-1] = methanol_demand
 
-    solar_pv = NodeScalableInputProfile(
+    solar_pv = NodeScalableInput(
         name="solar_pv",
         input_flow=pv_input_flow,
         costs=pv_cost,
         output_unit="KW",
     )
-    wind = NodeScalableInputProfile(
+    wind = NodeScalableInput(
         name="wind",
         input_flow=wind_input_flow,
         costs=wind_cost,
@@ -97,7 +97,7 @@ def create_methanol_network(
         ),
     )
 
-    methanol_demand = NodeFixOutputProfile(
+    methanol_demand = NodeFixOutput(
         name="methanol_demand",
         inputs=[methanol_synthesis],
         input_commodities=["methanol"],
