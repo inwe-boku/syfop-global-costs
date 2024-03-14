@@ -52,15 +52,15 @@ OUTPUT_VARS = [
 
 
 def optimize_pixel(
-    wind_input_flow, pv_input_flow, model_file=None, solver_name=SOLVER, **solver_params
+    wind_input_profile, pv_input_profile, model_file=None, solver_name=SOLVER, **solver_params
 ):
     """Optimize one pixel.
 
     Parameters
     ----------
-    wind_input_flow : xr.DataArray
+    wind_input_profile : xr.DataArray
         wind time series
-    pv_input_flow : xr.DataArray
+    pv_input_profile : xr.DataArray
         PV time series
     model_file :
         writes a LP file for further use in Gurobi command line tools (might be ignored for some
@@ -79,9 +79,9 @@ def optimize_pixel(
     # function as parameter
 
     network = create_methanol_network(
-        pv_input_flow=pv_input_flow,
+        pv_input_profile=pv_input_profile,
         pv_cost=pv_cost,
-        wind_input_flow=wind_input_flow,
+        wind_input_profile=wind_input_profile,
         wind_cost=wind_cost,
         methanol_demand=methanol_demand,
         storage_params=storage_params,
@@ -131,7 +131,7 @@ def optimize_pixel(
     solution["runtime_solver"] = runtime_solver
     solution["runtime"] = time.time() - t0
 
-    solution = solution.expand_dims(x=pv_input_flow.x, y=pv_input_flow.y)
+    solution = solution.expand_dims(x=pv_input_profile.x, y=pv_input_profile.y)
 
     return solution, network
 
@@ -140,12 +140,12 @@ def optimize_pixel_by_coord(x, y, model_file=None, **solver_params):
     """Optimize a single pixel instead of a chunk of pixels at once. Helpful for quick
     experiments."""
     logging.info("Load renewable time series...")
-    wind_input_flow = load_wind().isel(x=[x], y=[y]).load()
-    pv_input_flow = load_pv().isel(x=[x], y=[y]).load()
+    wind_input_profile = load_wind().isel(x=[x], y=[y]).load()
+    pv_input_profile = load_pv().isel(x=[x], y=[y]).load()
 
     return optimize_pixel(
-        wind_input_flow=wind_input_flow,
-        pv_input_flow=pv_input_flow,
+        wind_input_profile=wind_input_profile,
+        pv_input_profile=pv_input_profile,
         model_file=model_file,
         **solver_params,
     )
@@ -184,29 +184,31 @@ def optimize_network_chunk(
     x_slice = slice(x_start_idx, x_start_idx + CHUNK_SIZE[0])
     y_slice = slice(y_start_idx, y_start_idx + CHUNK_SIZE[1])
 
-    def slice_and_load(input_flow):
-        # input_flow is an xarray object with dims: x, y, time
-        input_flow = input_flow.isel(x=x_slice, y=y_slice)
+    def slice_and_load(input_profile):
+        # input_profile is an xarray object with dims: x, y, time
+        input_profile = input_profile.isel(x=x_slice, y=y_slice)
         if time_period_h != "1h":
             # this seems to load() the xarray object, but an additional load() takes only <1ms
-            input_flow = input_flow.resample(time=time_period_h).mean()
+            input_profile = input_profile.resample(time=time_period_h).mean()
 
             # resample().mean() is pretty slow, also in comparison to load()
             # This is a faster alternative, which selects every second hour:
-            # input_flow.sel(time=slice(None, None, 2))
+            # input_profile.sel(time=slice(None, None, 2))
             # But for a 5x5 chunk, the speed up is only about 600ms. Probably not worth it.
 
-        return input_flow.load()
+        return input_profile.load()
 
-    wind_input_flow = slice_and_load(load_wind())
-    pv_input_flow = slice_and_load(load_pv())
+    wind_input_profile = slice_and_load(load_wind())
+    pv_input_profile = slice_and_load(load_pv())
 
     land_sea_mask = load_land_sea_mask().load()
 
     logging.info(f"Loading time series files took {time.time() - t0}")
 
     # this makes the for loop easier
-    param = xr.Dataset({"wind_input_flow": wind_input_flow, "pv_input_flow": pv_input_flow})
+    param = xr.Dataset(
+        {"wind_input_profile": wind_input_profile, "pv_input_profile": pv_input_profile}
+    )
 
     i = 0
     solutions = []
@@ -239,8 +241,8 @@ def optimize_network_chunk(
             param = param_y.expand_dims(x=1, y=1).drop_vars(("lon", "lat"))
 
             solution, _ = optimize_pixel(
-                wind_input_flow=param.wind_input_flow,
-                pv_input_flow=param.pv_input_flow,
+                wind_input_profile=param.wind_input_profile,
+                pv_input_profile=param.pv_input_profile,
             )
 
             solutions.append(solution[OUTPUT_VARS])

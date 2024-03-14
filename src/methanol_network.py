@@ -10,9 +10,9 @@ from src.config import SOLVER_DIR
 
 
 def create_methanol_network(
-    pv_input_flow,
+    pv_input_profile,
     pv_cost,
-    wind_input_flow,
+    wind_input_profile,
     wind_cost,
     methanol_demand,
     storage_params,
@@ -26,19 +26,19 @@ def create_methanol_network(
 ):
 
     #
-    methanol_demand_timeseries = const_time_series(0.0, time_coords=pv_input_flow.time)
+    methanol_demand_timeseries = const_time_series(0.0, time_coords=pv_input_profile.time)
     # FIXME what is the unit here?
     methanol_demand_timeseries[-1] = methanol_demand
 
     solar_pv = NodeScalableInput(
         name="solar_pv",
-        input_flow=pv_input_flow,
+        input_profile=pv_input_profile,
         costs=pv_cost,
         output_unit="KW",
     )
     wind = NodeScalableInput(
         name="wind",
-        input_flow=wind_input_flow,
+        input_profile=wind_input_profile,
         costs=wind_cost,
         output_unit="KW",
     )
@@ -84,7 +84,6 @@ def create_methanol_network(
         convert_factor=methanol_synthesis_convert_factor,
         output_unit="KW",
         input_proportions=methanol_synthesis_input_proportions,
-
         # we just set a minimum methanol production per year but do not care
         # when is generated, this is modelled via a free storage:
         storage=Storage(
@@ -117,7 +116,7 @@ def create_methanol_network(
             methanol_synthesis,
             methanol_demand,
         ],
-        time_coords=pv_input_flow.time,
+        time_coords=pv_input_profile.time,
         solver_dir=SOLVER_DIR,
     )
 
