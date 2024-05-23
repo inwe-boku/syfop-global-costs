@@ -33,10 +33,6 @@ export GRB_LICENSE_FILE=$HOME/gurobi.lic
 BASEDIR=$(dirname "$0")
 export PYTHONPATH=$PYTHONPATH:$BASEDIR
 
-# This assumes that the syfop library is simple cloned as subdir
-export PYTHONPATH=$PYTHONPATH:$BASEDIR/syfop
-
-
 if [ $(hostname) == "nora" ]; then
     echo "Running on nora..."
     export SNAKEMAKE_PROFILE=config/nora
