@@ -25,3 +25,7 @@ group-components:
 #show-failed-logs: True
 #cluster-cancel: scancel
 # jobname
+
+resources:
+    # see comment in Snakefile
+    cdsapi=1

@@ -1,2 +1,6 @@
 cores: 32
 keep-going: False
+
+resources:
+    # see comment in Snakefile
+    cdsapi=1

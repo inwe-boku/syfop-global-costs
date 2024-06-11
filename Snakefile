@@ -25,16 +25,22 @@ rule download_land_sea_mask:
     shell: "python {input} {output}"
 
 
-# Memory might be limited too, but not sure how much one process really needs.
 rule download_era5:
     output:
-        "data/input/era5/global-{year}-{month}.nc",
+        # note: this is set to protected because we probably want to download it only once, but
+        # removing it accidentally is kind of a PITA.
+        protected("data/input/era5/global-{year}-{month}.nc"),
+
     # Speed here is probably mostly limited by network throughput, so more cores won't help much.
     # At the same time, /tmp might run out of space easily if we download too much at the same
     # time. We could change the location of temporary files, but we would have to take care about
     # removing them afterwards. Weirdly, atlite does not remove temp files if the location is not
     # the default one.
-    threads: 1
+    # Also the download bar looks ugly on the screen if there are multiple downloads at once.
+    # Therefore we require this rule to use 1 unit of the resource cdsapi and set 1 available
+    # cdsapi resource in the profiles for nora and VSC in the profiles in config/*.
+    resources:
+        cdsapi=1
     run:
         from src.download import download_era5
         download_era5(
