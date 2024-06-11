@@ -42,11 +42,11 @@ def download_land_sea_mask(product):
         fname,
     )
 
-    # For unknown reasons the longitude is 539.75°, which 360° too much, it should be 179.25°.
+    # For unknown reasons the longitude is 539.75°, which is 360° too much, it should be 179.25°.
     # This is probably a cdsapi bug and requires a workaround, because the coordinates need to
     # match the other ERA5 data.
     land_sea_mask = xr.open_dataset(fname)
-    longitude = xr.DataArray(land_sea_mask.longitude)
+    longitude = land_sea_mask.longitude.values
     assert (
         longitude[-1] == 539.75
     ), "csdapi bug has been fixed or changed, workaround needs adaption"
