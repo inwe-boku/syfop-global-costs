@@ -2,8 +2,6 @@ import glob
 
 import xarray as xr
 
-from src.config import YEARS
-from src.config import MONTHS
 from src.config import INPUT_DIR
 from src.config import INTERIM_DIR
 
@@ -20,18 +18,16 @@ def load_network_solution():
     return solution
 
 
-def _load_renewable_timeseries(technology):
-    assert len(MONTHS) == 12
-    years = "-".join(str(year) for year in YEARS)
-    fname = INTERIM_DIR / "renewable_timeseries" / f"{technology}_{years}.nc"
+def _load_renewable_timeseries(technology, year):
+    fname = INTERIM_DIR / "renewable_timeseries" / f"{technology}_{year}.nc"
     return xr.open_dataarray(fname)
 
 
-def load_pv():
+def load_pv(year):
     technology = "pv"
-    return _load_renewable_timeseries(technology)
+    return _load_renewable_timeseries(technology, year)
 
 
-def load_wind():
+def load_wind(year):
     technology = "wind"
-    return _load_renewable_timeseries(technology)
+    return _load_renewable_timeseries(technology, year)

@@ -22,7 +22,8 @@ def worker(params):
     #
     # command = ["python", "scripts/optimize_network_chunk.py", str(x_start_idx), str(y_start_idx)]
     # subprocess.run(command, check=True)
-    optimize_network_chunk(x_start_idx, y_start_idx)
+    optimize_network_chunk(x_start_idx, y_start_idx, year=2011, chunk_size=[5, 5])
+
 
 def run_chunk_processes(chunks):
     """Run optimization for chunks in parallel subprocesses."""
@@ -75,6 +76,7 @@ def main():
     if args.chunks:
         chunks = args.chunks
     else:
+        # FIXME this is broken atm, need to fetch indices from snakemake config and pass as param
         chunks = list(iter_chunk_indices())
 
     runner = run_jobs_slurm if args.vsc else run_chunk_processes

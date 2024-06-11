@@ -13,8 +13,6 @@ from src.task import task
 
 from src.config import SOLVER
 from src.config import SOLVER_DEFAULTS
-from src.config import CHUNK_SIZE
-from src.config import NUM_PROCESSES
 
 from src.load_data import load_pv
 from src.load_data import load_wind
@@ -136,12 +134,12 @@ def optimize_pixel(
     return solution, network
 
 
-def optimize_pixel_by_coord(x, y, model_file=None, **solver_params):
+def optimize_pixel_by_coord(x, y, year, model_file=None, **solver_params):
     """Optimize a single pixel instead of a chunk of pixels at once. Helpful for quick
     experiments."""
     logging.info("Load renewable time series...")
-    wind_input_profile = load_wind().isel(x=[x], y=[y]).load()
-    pv_input_profile = load_pv().isel(x=[x], y=[y]).load()
+    wind_input_profile = load_wind(year).isel(x=[x], y=[y]).load()
+    pv_input_profile = load_pv(year).isel(x=[x], y=[y]).load()
 
     return optimize_pixel(
         wind_input_profile=wind_input_profile,
@@ -155,6 +153,8 @@ def optimize_pixel_by_coord(x, y, model_file=None, **solver_params):
 def optimize_network_chunk(
     x_start_idx,
     y_start_idx,
+    chunk_size,
+    year,
     time_period_h="1h",
     inputs=None,
     outputs=None,
@@ -181,8 +181,8 @@ def optimize_network_chunk(
 
     t0 = time.time()
 
-    x_slice = slice(x_start_idx, x_start_idx + CHUNK_SIZE[0])
-    y_slice = slice(y_start_idx, y_start_idx + CHUNK_SIZE[1])
+    x_slice = slice(x_start_idx, x_start_idx + chunk_size[0])
+    y_slice = slice(y_start_idx, y_start_idx + chunk_size[1])
 
     def slice_and_load(input_profile):
         # input_profile is an xarray object with dims: x, y, time
@@ -198,8 +198,8 @@ def optimize_network_chunk(
 
         return input_profile.load()
 
-    wind_input_profile = slice_and_load(load_wind())
-    pv_input_profile = slice_and_load(load_pv())
+    wind_input_profile = slice_and_load(load_wind(year))
+    pv_input_profile = slice_and_load(load_pv(year))
 
     land_sea_mask = load_land_sea_mask().load()
 
@@ -249,8 +249,7 @@ def optimize_network_chunk(
 
             runtime = time.time() - t0
             logging.info(
-                f"Pixel runtime for pixel {param_x_coord}/{param_y_coord} "
-                f"took: {runtime}s (about {runtime / NUM_PROCESSES}s per pixel)"
+                f"Pixel runtime for pixel {param_x_coord}/{param_y_coord} took: {runtime}s"
             )
 
     # TODO check if xr.concat() would be faster (supports only one dimension)

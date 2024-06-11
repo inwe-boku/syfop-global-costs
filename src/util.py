@@ -1,10 +1,6 @@
 import os
 
-from src.config import CHUNK_SIZE
 from src.config import INTERIM_DIR
-
-from src.config import X_IDX_FROM_TO
-from src.config import Y_IDX_FROM_TO
 
 
 def create_folder(path, prefix=INTERIM_DIR):
@@ -15,9 +11,9 @@ def create_folder(path, prefix=INTERIM_DIR):
 
 
 def iter_chunk_indices(
-    x_idx_from_to=X_IDX_FROM_TO,
-    y_idx_from_to=Y_IDX_FROM_TO,
-    chunk_size=CHUNK_SIZE,
+    x_idx_from_to,
+    y_idx_from_to,
+    chunk_size,
 ):
     x_range = range(x_idx_from_to[0], x_idx_from_to[1], chunk_size[0])
     y_range = range(y_idx_from_to[0], y_idx_from_to[1], chunk_size[1])

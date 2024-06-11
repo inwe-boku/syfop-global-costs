@@ -109,6 +109,9 @@ rule optimize_network:
             outputs=output,
             x_start_idx=int(wildcards.x_idx),
             y_start_idx=int(wildcards.y_idx),
+            year=config['year_era5'],
+            chunk_size=config['chunk_size'],
+            time_period_h=config['time_period_h'],
         )
 
 

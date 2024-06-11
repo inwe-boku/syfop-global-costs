@@ -1,17 +1,10 @@
-import os
 import pathlib
 import multiprocessing
 
 
-# used for downloading, calculation of time series etc
-MONTHS = range(1, 13)
-YEARS = (2011,)
-
 REPO_ROOT_DIR = pathlib.Path(__file__).parent.parent
 
-simulation = "-simulation" if "SIMULATION" in os.environ and os.environ["SIMULATION"] else ""
-
-DATA_DIR = REPO_ROOT_DIR / f"data{simulation}"
+DATA_DIR = REPO_ROOT_DIR / "data"
 
 LOG_FILE = DATA_DIR / "logfile.log"
 
@@ -31,10 +24,6 @@ FIGURES_DIR = DATA_DIR / "figures"
 # here if you get out-of-disk-space errors.
 SOLVER_DIR = None
 
-FIGSIZE = (12, 7.5)
-
-# how many tiles in x/y are computed in one process at once and then stored in one file
-CHUNK_SIZE = 5, 5
 
 # solver used per default for the optimization problem
 SOLVER = "cplex"
@@ -83,15 +72,6 @@ SOLVER_DEFAULTS = {
         # 'solutiontype': 2,
     },
 }
-
-
-# Balkan
-# X_IDX_FROM_TO = 750, 840
-# Y_IDX_FROM_TO = 530, 560
-
-# Denmark
-X_IDX_FROM_TO = 740, 800
-Y_IDX_FROM_TO = 560, 620
 
 
 # Number of sub processes run in parallel (on VSC this is per node)
