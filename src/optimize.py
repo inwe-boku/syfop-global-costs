@@ -14,6 +14,8 @@ from src.task import task
 from src.config import SOLVER
 from src.config import SOLVER_DEFAULTS
 
+from src import snakemake_config
+
 from src.load_data import load_pv
 from src.load_data import load_wind
 from src.load_data import load_land_sea_mask
@@ -201,6 +203,12 @@ def optimize_network_chunk(
             # This is a faster alternative, which selects every second hour:
             # input_profile.sel(time=slice(None, None, 2))
             # But for a 5x5 chunk, the speed up is only about 600ms. Probably not worth it.
+
+        if snakemake_config.config["testmode"]:
+            # we need an equidistant time series without NaN values for syfop, but the test mode
+            # downloads crappy data so let's just throw away NaNs (introduced by the resampling
+            # above) and then use only two time stamps - they are equidistant.
+            input_profile = input_profile.dropna('time').isel(time=[0,1])
 
         return input_profile.load()
 
