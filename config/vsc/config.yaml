@@ -29,3 +29,6 @@ group-components:
 resources:
     # see comment in Snakefile
     cdsapi=1
+
+config:
+    solver_dir="/local"

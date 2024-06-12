@@ -11,9 +11,6 @@ from src.util import create_folder
 
 from src.task import task
 
-from src.config import SOLVER
-from src.config import SOLVER_DEFAULTS
-
 from src import snakemake_config
 
 from src.load_data import load_pv
@@ -52,7 +49,7 @@ OUTPUT_VARS = [
 
 
 def optimize_pixel(
-    wind_input_profile, pv_input_profile, model_file=None, solver_name=SOLVER, **solver_params
+    wind_input_profile, pv_input_profile, model_file=None, solver_name=None, **solver_params
 ):
     """Optimize one pixel.
 
@@ -71,6 +68,9 @@ def optimize_pixel(
         passed to linopy for solver
 
     """
+    if solver_name is None:
+        solver_name = snakemake_config.config["solver"]
+
     logging.info("Start optimization...")
 
     t0 = time.time()
@@ -96,8 +96,10 @@ def optimize_pixel(
 
     logging.info(f"Creating network took {time.time() - t0}")
 
-    if solver_name in SOLVER_DEFAULTS:
-        solver_params = {**SOLVER_DEFAULTS[solver_name], **solver_params}
+    solver_defaults = snakemake_config.config["solver_params"]
+
+    if solver_name in solver_defaults:
+        solver_params = {**solver_defaults[solver_name], **solver_params}
 
     with io.StringIO() as buf, redirect_stdout(buf):
         network.optimize(

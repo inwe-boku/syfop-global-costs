@@ -3,7 +3,7 @@ from syfop.util import const_time_series
 from syfop.node import Node, NodeScalableInput, NodeFixOutput, Storage
 from syfop.network import Network
 
-from src.config import SOLVER_DIR
+from src import snakemake_config
 
 
 def create_methanol_network(
@@ -116,7 +116,7 @@ def create_methanol_network(
         ],
         units=units,
         time_coords=pv_input_profile.time,
-        solver_dir=SOLVER_DIR,
+        solver_dir=snakemake_config.config['solver_dir'],
     )
 
     return network
