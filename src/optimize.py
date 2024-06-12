@@ -269,8 +269,8 @@ def optimize_network_chunk(
     # TODO check if xr.concat() would be faster (supports only one dimension)
     out = xr.combine_by_coords(solutions)
 
-    path = create_folder("network_solution")
-    out.to_netcdf(path / f"network_solution_{x_start_idx}_{y_start_idx}.nc")
+    create_folder("network_solution")
+    out.to_netcdf(outputs[0])
     logger.info(f"Chunk {x_start_idx},{y_start_idx} done!")
 
 
