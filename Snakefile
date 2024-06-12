@@ -31,11 +31,11 @@ rule all:
 
 
 rule download_land_sea_mask:
-    input:
-        "scripts/download_land_sea_mask.py"
     output:
         "data/input/land_sea_mask/land_sea_mask.nc"
-    shell: "python {input} {output}"
+    run:
+        from src.download import download_land_sea_mask
+        download_land_sea_mask(input, output)
 
 
 rule download_era5:
