@@ -1,14 +1,24 @@
-# TODO:
-# - grouping for SLURM
-# - set max threads?
-# - set max CPUS here not via CLI?
-# - how to config parameters in a central place?
-#   - year used
-#   - turbine height
-#   - turbine model
-
-
 configfile: "config/params.yaml"
+configfile: "config/config.yaml"
+
+
+# Convention for files: Use the following pattern:
+# something_with_underscores_prefix-WILDCARD_another_prefix-ANOTHER_WILDCARD
+# that means:
+#  - underscores to separate words
+#  - a prefix word before wildcards
+#  - a dash between the prefix and the wildcard
+#  - no dashes or underscores in wildcards
+#  - no other dashes in file names
+#
+# This should make the Snakemake filename pattern matching pretty unambiguous. Feel free to define
+# additional wildcard_constraints.
+
+
+wildcard_constraints:
+    year="\d+",
+    technology="[a-z]+",
+    renewable_scenario="[a-z]+",
 
 
 rule all:
@@ -112,9 +122,6 @@ rule optimize_network:
             technology=['wind'],
             allow_missing=True,
         ),
-
-        # TODO add more source files and input data files
-        #"src/optimize.py",
     output:
         # TODO rename this to chunks
         # TODO make this temporary files?
