@@ -76,7 +76,6 @@ rule generate_renewable_timeseries:
     input:
         # note: this task also downloads inputs if necessary
         era5 = data_dir + "input/era5/global-{year}-{month}.nc",
-    threads: 2
     output:
         # remove the temp() here if you want to keep the monthly time series, probably makes only
         # sense if you are experimenting with one month only.
