@@ -14,7 +14,10 @@ configfile: "config/params.yaml"
 rule all:
     # TODO does this rule need to be local?
     input:
-        "data/output/network_solution/network_solution.nc"
+        expand(
+            "data/output/network_solution/network_solution_renewables-{renewable_scenario}.nc",
+            renewable_scenario=config['renewable_params'].keys(),
+        )
 
 
 rule download_land_sea_mask:
@@ -57,7 +60,9 @@ rule generate_renewable_timeseries:
         era5 = "data/input/era5/global-{year}-{month}.nc",
     threads: 2
     output:
-        renewable_timeseries = temp("data/interim/{technology}/{technology}-month_{year}-{month}.nc"),
+        # remove the temp() here if you want to keep the monthly time series, probably makes only
+        # sense if you are experimenting with one month only.
+        renewable_timeseries = temp("data/interim/{technology}/{technology}_renewables-{renewable_scenario}-month_{year}-{month}.nc"),
     run:
         from src.renewable_timeseries import generate_renewable_timeseries
         generate_renewable_timeseries(
@@ -66,11 +71,12 @@ rule generate_renewable_timeseries:
             technology=wildcards.technology,
             year=wildcards.year,
             month=wildcards.month,
+            renewable_params=config['renewable_params'][wildcards.renewable_scenario],
         )
 
 
 rule concat_renewable_timeseries:
-    # concats monthly files to a yearly file
+    # concatenates monthly files to a yearly file
     input:
         expand(
             rules.generate_renewable_timeseries.output,
@@ -81,7 +87,7 @@ rule concat_renewable_timeseries:
             allow_missing=True
         )
     output:
-        "data/interim/renewable_timeseries/{technology}_{year}.nc",
+        "data/interim/renewable_timeseries/{technology}_renewables-{renewable_scenario}_{year}.nc",
     run:
         from src.renewable_timeseries import concat_renewable_timeseries
         concat_renewable_timeseries(
@@ -93,18 +99,29 @@ rule concat_renewable_timeseries:
 
 rule optimize_network:
     input:
-        rules.download_land_sea_mask.output,
-        expand(
+        download_land_sea_mask = rules.download_land_sea_mask.output,
+        pv = expand(
             rules.concat_renewable_timeseries.output,
             year=config['year_era5'],
-            technology=['pv', 'wind']
+            technology=['pv'],
+            allow_missing=True,
+        ),
+        wind = expand(
+            rules.concat_renewable_timeseries.output,
+            year=config['year_era5'],
+            technology=['wind'],
+            allow_missing=True,
         ),
 
         # TODO add more source files and input data files
         #"src/optimize.py",
     output:
         # TODO rename this to chunks
-        network_solution = "data/interim/network_solution/network_solution_{x_idx}_{y_idx}.nc"
+        # TODO make this temporary files?
+        network_solution = "data/interim/network_solution/network_solution_renewables-{renewable_scenario}_chunk-{x_idx}-{y_idx}.nc"
+    wildcard_constraints:
+        x_idx="\d+",
+        y_idx="\d+",
     resources:
         runtime = 180,
         mem_mb = 8000,
@@ -113,9 +130,10 @@ rule optimize_network:
         optimize_network_chunk(
             inputs=input,
             outputs=output,
+            pv_timeseries_fname=input.pv[0],
+            wind_timeseries_fname=input.wind[0],
             x_start_idx=int(wildcards.x_idx),
             y_start_idx=int(wildcards.y_idx),
-            year=config['year_era5'],
             chunk_size=config['chunk_size'],
             time_period_h=config['time_period_h'],
         )
@@ -126,14 +144,15 @@ rule concat_solution_chunks:
         expand(
             rules.optimize_network.output.network_solution,
             x_idx=range(*config['x_idx_from_to'], config['chunk_size'][0]),
-            y_idx=range(*config['y_idx_from_to'], config['chunk_size'][1])
+            y_idx=range(*config['y_idx_from_to'], config['chunk_size'][1]),
+            allow_missing=True,
         )
     output:
-        # It's a bit weird to refer to rule "all" here, but "all" needs to be the first rule in the
-        # Snakefile to be the default rule. At the same time we can refer only to rules defined
-        # above already. So we cannot refer to an output file in rule "all" from another rule. At
-        # least there is no duplication between paths.
-        rules.all.input,
+        # minor duplication: also in rules.all.input, because rule "all" needs to be the first one
+        # in the Snakefile to be executed as default rule. At the same time we can refer only to
+        # rules defined above already. So we cannot refer to an output file in rule "all" from
+        # another rule.
+        "data/output/network_solution/network_solution_renewables-{renewable_scenario}.nc",
     run:
         from src.optimize import concat_solution_chunks
         concat_solution_chunks(input, output)

@@ -154,7 +154,8 @@ def optimize_network_chunk(
     x_start_idx,
     y_start_idx,
     chunk_size,
-    year,
+    pv_timeseries_fname,
+    wind_timeseries_fname,
     time_period_h="1h",
     inputs=None,
     outputs=None,
@@ -184,8 +185,9 @@ def optimize_network_chunk(
     x_slice = slice(x_start_idx, x_start_idx + chunk_size[0])
     y_slice = slice(y_start_idx, y_start_idx + chunk_size[1])
 
-    def slice_and_load(input_profile):
+    def slice_and_load(fname):
         # input_profile is an xarray object with dims: x, y, time
+        input_profile = xr.open_dataarray(fname)
         input_profile = input_profile.isel(x=x_slice, y=y_slice)
         if time_period_h != "1h":
             # this seems to load() the xarray object, but an additional load() takes only <1ms
@@ -198,8 +200,8 @@ def optimize_network_chunk(
 
         return input_profile.load()
 
-    wind_input_profile = slice_and_load(load_wind(year))
-    pv_input_profile = slice_and_load(load_pv(year))
+    wind_input_profile = slice_and_load(wind_timeseries_fname)
+    pv_input_profile = slice_and_load(pv_timeseries_fname)
 
     land_sea_mask = load_land_sea_mask().load()
 

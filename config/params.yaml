@@ -24,3 +24,22 @@ chunk_size: [5, 5]
 
 # resolution of time series for the optimization
 time_period_h: "4h"
+
+
+# Parameters for PV and wind time series: parameters are passed to the atlite functions
+# Cutout.wind() and Cutout.pv(). Each key describes a scenario with a set of parameters for
+# renewable time series which is used in the file names.
+# Note: If you want to have multiple settings you need to add the wild cards to the optimization
+# rules. ATM this is done only for the generation of the time series.
+#
+# https://atlite.readthedocs.io/en/master/ref_api.html#atlite.Cutout.wind
+# https://atlite.readthedocs.io/en/master/ref_api.html#atlite.Cutout.pv
+renewable_params:
+    default:
+        pv:
+            panel: CSi
+            orientation:
+                slope: 30.0
+                azimuth: 180.0
+        wind:
+            turbine: Vestas_V90_3MW

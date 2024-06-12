@@ -19,9 +19,9 @@ def unstack_to_xy(timeseries, cutout):
     return out
 
 
-def wind(cutout):
+def wind(cutout, params):
     sparse_identity = scipy.sparse.identity(cutout.data.sizes["x"] * cutout.data.sizes["y"])
-    wind = cutout.wind("Vestas_V90_3MW", matrix=sparse_identity)
+    wind = cutout.wind(**params, matrix=sparse_identity)
     wind = unstack_to_xy(wind, cutout)
     return wind
 
@@ -43,7 +43,7 @@ def iterate_time_chunks(cutout, chunksize=None):
         chunk_idx_start = chunk_idx_end
 
 
-def pv(cutout):
+def pv(cutout, params):
     sparse_identity = scipy.sparse.identity(cutout.data.sizes["x"] * cutout.data.sizes["y"])
 
     # TODO iterate through days in a loop or so because otherwise it requires too much RAM
@@ -53,9 +53,7 @@ def pv(cutout):
         # t0 = time.time()
         logging.info(f"Converting chunk {cutout_chunk.data.time[0].values}....")
 
-        pv_timeseries_chunk = cutout_chunk.pv(
-            panel="CSi", orientation={"slope": 30.0, "azimuth": 180.0}, matrix=sparse_identity
-        )
+        pv_timeseries_chunk = cutout_chunk.pv(**params, matrix=sparse_identity)
         pv_timeseries_chunk = unstack_to_xy(pv_timeseries_chunk, cutout_chunk)
 
         pv_timeseries.append(pv_timeseries_chunk)
@@ -68,7 +66,7 @@ def pv(cutout):
 
 
 @task
-def generate_renewable_timeseries(inputs, outputs, technology, year, month):
+def generate_renewable_timeseries(inputs, outputs, technology, year, month, renewable_params):
     cutout = create_era5_cutout(inputs, outputs, year, month)
 
     if technology == "wind":
@@ -80,7 +78,7 @@ def generate_renewable_timeseries(inputs, outputs, technology, year, month):
 
     # TODO let's silence the large chunk warning for now, not sure if relevant...
     with dask.config.set(**{"array.slicing.split_large_chunks": False}):
-        wind_timeseries = generate(cutout)
+        wind_timeseries = generate(cutout, renewable_params[technology])
     wind_timeseries.to_netcdf(outputs.renewable_timeseries)
 
 
