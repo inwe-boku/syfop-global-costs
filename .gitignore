@@ -54,3 +54,7 @@ gurobi.log
 *.snm
 *.nav
 *.run.xml
+
+# data not tracked by Git atm
+data
+data-test
