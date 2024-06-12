@@ -137,6 +137,10 @@ def optimize_pixel(
 def optimize_pixel_by_coord(x, y, year, model_file=None, **solver_params):
     """Optimize a single pixel instead of a chunk of pixels at once. Helpful for quick
     experiments."""
+    raise NotImplementedError(
+        "This is not working atm because load_pv/load_wind also requires a "
+        "renewable_scenario string to find the files."
+    )
     logging.info("Load renewable time series...")
     wind_input_profile = load_wind(year).isel(x=[x], y=[y]).load()
     pv_input_profile = load_pv(year).isel(x=[x], y=[y]).load()
