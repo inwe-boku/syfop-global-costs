@@ -1,2 +1,5 @@
-# ATM this is
-debug: 1
+# Enable to download only two hours per month to speed up testing. Data will be stored in a
+# separate data folder and used only for the test mode runs.
+# You probably want to overwrite this config setting on the command line and not here:
+#   ./run.sh --config "testmode=True"
+testmode: False

@@ -1,10 +1,15 @@
+import yaml
 import pathlib
 import multiprocessing
+
+from src import snakemake_config
 
 
 REPO_ROOT_DIR = pathlib.Path(__file__).parent.parent
 
-DATA_DIR = REPO_ROOT_DIR / "data"
+testdir = "-test" if snakemake_config.config['testmode'] else ""
+
+DATA_DIR = REPO_ROOT_DIR / f"data{testdir}"
 
 LOG_FILE = DATA_DIR / "logfile.log"
 

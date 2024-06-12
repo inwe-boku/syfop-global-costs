@@ -14,25 +14,33 @@ configfile: "config/config.yaml"
 # This should make the Snakemake filename pattern matching pretty unambiguous. Feel free to define
 # additional wildcard_constraints.
 
-
 wildcard_constraints:
     year="\d+",
     technology="[a-z]+",
     renewable_scenario="[a-z]+",
 
 
+# testmode is a fast run with test data, see config/config.yaml
+data_dir = "data" + ("-test" if config["testmode"] else "") + "/"
+
+# Crazy hack: make the snakemake config object globally available to python code in src.
+# see src/snakemake_config.py for details
+import src.snakemake_config
+src.snakemake_config.config = config
+
+
 rule all:
     # TODO does this rule need to be local?
     input:
         expand(
-            "data/output/network_solution/network_solution_renewables-{renewable_scenario}.nc",
+            data_dir + "output/network_solution/network_solution_renewables-{renewable_scenario}.nc",
             renewable_scenario=config['renewable_params'].keys(),
         )
 
 
 rule download_land_sea_mask:
     output:
-        "data/input/land_sea_mask/land_sea_mask.nc"
+        data_dir + "input/land_sea_mask/land_sea_mask.nc"
     run:
         from src.download import download_land_sea_mask
         download_land_sea_mask(input, output)
@@ -42,7 +50,7 @@ rule download_era5:
     output:
         # note: this is set to protected because we probably want to download it only once, but
         # removing it accidentally is kind of a PITA.
-        protected("data/input/era5/global-{year}-{month}.nc"),
+        protected(data_dir + "input/era5/global-{year}-{month}.nc"),
 
     # Speed here is probably mostly limited by network throughput, so more cores won't help much.
     # At the same time, /tmp might run out of space easily if we download too much at the same
@@ -67,12 +75,12 @@ rule download_era5:
 rule generate_renewable_timeseries:
     input:
         # note: this task also downloads inputs if necessary
-        era5 = "data/input/era5/global-{year}-{month}.nc",
+        era5 = data_dir + "input/era5/global-{year}-{month}.nc",
     threads: 2
     output:
         # remove the temp() here if you want to keep the monthly time series, probably makes only
         # sense if you are experimenting with one month only.
-        renewable_timeseries = temp("data/interim/{technology}/{technology}_renewables-{renewable_scenario}-month_{year}-{month}.nc"),
+        renewable_timeseries = temp(data_dir + "interim/{technology}/{technology}_renewables-{renewable_scenario}-month_{year}-{month}.nc"),
     run:
         from src.renewable_timeseries import generate_renewable_timeseries
         generate_renewable_timeseries(
@@ -97,7 +105,7 @@ rule concat_renewable_timeseries:
             allow_missing=True
         )
     output:
-        "data/interim/renewable_timeseries/{technology}_renewables-{renewable_scenario}_{year}.nc",
+        data_dir + "interim/renewable_timeseries/{technology}_renewables-{renewable_scenario}_{year}.nc",
     run:
         from src.renewable_timeseries import concat_renewable_timeseries
         concat_renewable_timeseries(
@@ -125,7 +133,7 @@ rule optimize_network:
     output:
         # TODO rename this to chunks
         # TODO make this temporary files?
-        network_solution = "data/interim/network_solution/network_solution_renewables-{renewable_scenario}_chunk-{x_idx}-{y_idx}.nc"
+        network_solution = data_dir + "interim/network_solution/network_solution_renewables-{renewable_scenario}_chunk-{x_idx}-{y_idx}.nc"
     wildcard_constraints:
         x_idx="\d+",
         y_idx="\d+",
@@ -159,7 +167,7 @@ rule concat_solution_chunks:
         # in the Snakefile to be executed as default rule. At the same time we can refer only to
         # rules defined above already. So we cannot refer to an output file in rule "all" from
         # another rule.
-        "data/output/network_solution/network_solution_renewables-{renewable_scenario}.nc",
+        data_dir + "output/network_solution/network_solution_renewables-{renewable_scenario}.nc",
     run:
         from src.optimize import concat_solution_chunks
         concat_solution_chunks(input, output)

@@ -6,9 +6,9 @@ import atlite
 import xarray as xr
 
 from src import config
+from src import snakemake_config
 from src.task import task
 from src.util import create_folder
-
 
 
 def _create_era5_cutout(inputs, outputs, year, month):
@@ -18,6 +18,10 @@ def _create_era5_cutout(inputs, outputs, year, month):
     fname = f"global-{time_period}"
 
     logging.info(f"Preparing ERA5 data {fname}...")
+
+    if snakemake_config.config["testmode"]:
+        # just download two hours per month to speed up testing
+        time_period = slice(f"{time_period}-01 12:00", f"{time_period}-01 13:00")
 
     cutout = atlite.Cutout(
         path / fname,
