@@ -2,12 +2,12 @@
 #
 #
 
-# 
+# weather year used for simulation of renewable time series
 year_era5: 2011
 
 
-# values below here are actually global config atm, right?
-# do we really need to mengle all params into the file names?
+# Define pixels to be used in the optimization:
+# All global pixels: y: 720, x: 1440 (i.e. [0, 1439] and [0, 719])
 
 # Balkan
 # x_idx_from_to: [750, 840]
@@ -18,11 +18,11 @@ x_idx_from_to: [740, 800]
 y_idx_from_to: [560, 620]
 
 
-# how many tiles in x/y are computed in one process at once and then stored in one file
+# How many pixels in x/y are computed in one process at once and then stored in one file
 chunk_size: [5, 5]
 
 
-# resolution of time series for the optimization
+# Resolution of time series for the optimization, larger time steps make the optimization way faster
 time_period_h: "4h"
 
 
