@@ -37,7 +37,7 @@ solver_params:
         # Basis_fn: model_file
 
         # cplex parameters found with cplex tuning:
-        "simplex.perturbation.constant": 1e-6
+        "simplex.perturbation.constant": 1.0e-6
         "simplex.perturbation.indicator": True
 
         # use Barrier algorithm in one thread
