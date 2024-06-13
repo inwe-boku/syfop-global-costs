@@ -30,18 +30,19 @@ src.snakemake_config.config = config
 
 
 # this might allow parallel cdsapi downloads on the VSC, one per node
+# XXX but it might be a bit too much to use a separate node just to download some files, right?
 # https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#resources
 resource_scopes:
     cdsapi="local",
 
 
 rule all:
-    # TODO does this rule need to be local?
     input:
         expand(
             data_dir + "output/network_solution/network_solution_renewables-{renewable_scenario}.nc",
             renewable_scenario=config['renewable_params'].keys(),
         )
+    localrule: True
 
 
 rule download_land_sea_mask:
@@ -50,6 +51,7 @@ rule download_land_sea_mask:
     run:
         from src.download import download_land_sea_mask
         download_land_sea_mask(input, output)
+    localrule: True
 
 
 rule download_era5:
