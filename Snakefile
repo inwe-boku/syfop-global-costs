@@ -37,21 +37,21 @@ resource_scopes:
 
 
 rule all:
+    localrule: True
     input:
         expand(
             data_dir + "output/network_solution/network_solution_renewables-{renewable_scenario}.nc",
             renewable_scenario=config['renewable_params'].keys(),
         )
-    localrule: True
 
 
 rule download_land_sea_mask:
+    localrule: True
     output:
         data_dir + "input/land_sea_mask/land_sea_mask.nc"
     run:
         from src.download import download_land_sea_mask
         download_land_sea_mask(input, output)
-    localrule: True
 
 
 rule download_era5:
