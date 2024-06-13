@@ -1,12 +1,12 @@
-#cluster:
-#  mkdir -p logs/ &&
-#  sbatch
-#    --cpus-per-task={threads}
-#    --mem={resources.mem_mb}
-#    --output=logs/%j.out
-#default-resources:
-#  - mem_mb=1000
-#  - runtime=70
+cluster:
+  mkdir -p logs/ &&
+  sbatch
+    --cpus-per-task={threads}
+    --mem={resources.mem_mb}
+    --output=logs/%j.out
+default-resources:
+  - mem_mb=1000
+  - runtime=180
 jobs: 500
 
 # go on with independent jobs if a job fails
@@ -19,12 +19,11 @@ groups:
   - optimize_network=groupjob
 group-components:
   - groupjob=11
-#max-jobs-per-second: 25
+max-jobs-per-second: 25
 
 #retries: 3
 #show-failed-logs: True
 #cluster-cancel: scancel
-# jobname
 
 resources:
     # see comment in Snakefile
