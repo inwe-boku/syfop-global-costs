@@ -29,6 +29,12 @@ import src.snakemake_config
 src.snakemake_config.config = config
 
 
+# this might allow parallel cdsapi downloads on the VSC, one per node
+# https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#resources
+resource_scopes:
+    cdsapi="local",
+
+
 rule all:
     # TODO does this rule need to be local?
     input:
@@ -62,6 +68,7 @@ rule download_era5:
     # cdsapi resource in the profiles for nora and VSC in the profiles in config/*.
     resources:
         cdsapi=1
+
     run:
         from src.download import download_era5
         download_era5(
@@ -79,7 +86,12 @@ rule generate_renewable_timeseries:
     output:
         # remove the temp() here if you want to keep the monthly time series, probably makes only
         # sense if you are experimenting with one month only.
-        renewable_timeseries = temp(data_dir + "interim/{technology}/{technology}_renewables-{renewable_scenario}-month_{year}-{month}.nc"),
+        renewable_timeseries = temp(
+            data_dir + "interim/{technology}/" +
+            "{technology}_renewables-{renewable_scenario}-month_{year}-{month}.nc"),
+    resources:
+        mem="22GB",       # measured 20.1GB (PV) and 14.8GB (wind) on nora
+        runtime="15min",  # 3min for PV and 24s for wind on nora
     run:
         from src.renewable_timeseries import generate_renewable_timeseries
         generate_renewable_timeseries(
@@ -104,7 +116,11 @@ rule concat_renewable_timeseries:
             allow_missing=True
         )
     output:
-        data_dir + "interim/renewable_timeseries/{technology}_renewables-{renewable_scenario}_{year}.nc",
+        data_dir + "interim/renewable_timeseries/"
+            "{technology}_renewables-{renewable_scenario}_{year}.nc",
+    resources:
+        mem="75GB",       # measured 68.1GB on nora (for both, PV and wind)
+        runtime="20min",  # 9min on nora (for both, PV and wind)
     run:
         from src.renewable_timeseries import concat_renewable_timeseries
         concat_renewable_timeseries(
@@ -137,8 +153,8 @@ rule optimize_network:
         x_idx="\d+",
         y_idx="\d+",
     resources:
-        runtime = 180,
-        mem_mb = 8000,
+        runtime="20min",    # 3min on nora, but multiple parallel jobs might slow down things
+        mem="8GB",          # less than a GB on nora, but make it larger (we had weird RAM issues on the VSC?)
     run:
         from src.optimize import optimize_network_chunk
         optimize_network_chunk(
@@ -167,6 +183,11 @@ rule concat_solution_chunks:
         # rules defined above already. So we cannot refer to an output file in rule "all" from
         # another rule.
         data_dir + "output/network_solution/network_solution_renewables-{renewable_scenario}.nc",
+
+    resources:
+        runtime="60s",    # 12s measured on nora
+        mem="2GB",     # 640MB measured on nora
+
     run:
         from src.optimize import concat_solution_chunks
         concat_solution_chunks(input, output)

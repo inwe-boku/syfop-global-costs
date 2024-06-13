@@ -1,6 +1,13 @@
 cores: 32
+
+# go on with independent jobs if a job fails
 keep-going: False
 
 resources:
     # see comment in Snakefile
     cdsapi=1
+
+# XXX not soure if this is the correct syntax to define the resources a second time here..
+resources:
+    # available RAM on nora, no idea why we can't use "mem=115GB" here, but seems to invalid syntax
+    mem_mb=115000
