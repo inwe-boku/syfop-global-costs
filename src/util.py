@@ -1,6 +1,6 @@
 import os
 
-from src.config import INTERIM_DIR
+from src.paths import INTERIM_DIR
 
 
 def create_folder(path, prefix=INTERIM_DIR):

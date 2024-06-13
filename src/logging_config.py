@@ -1,7 +1,7 @@
 import sys
 import logging.config
 
-from src.config import LOG_FILE
+from src.paths import LOG_FILE
 
 
 setup_done = False

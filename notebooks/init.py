@@ -58,7 +58,7 @@ from dask.diagnostics import ProgressBar  # noqa: F401
 
 # Custom & Project Specific Imports
 # =================================
-from src.config import *  # noqa: F401, F403
+from src.paths import *  # noqa: F401, F403
 from src.download import *  # noqa: F401, F403
 from src.load_data import *  # noqa: F401, F403
 from src.methanol_network import *  # noqa: F401, F403

@@ -5,7 +5,7 @@ import cdsapi
 import atlite
 import xarray as xr
 
-from src import config
+from src import paths
 from src import snakemake_config
 from src.task import task
 from src.util import create_folder
@@ -14,7 +14,7 @@ from src.util import create_folder
 def _create_era5_cutout(inputs, outputs, year, month):
     time_period = f"{year}-{month}"
 
-    path = create_folder("era5", prefix=config.INPUT_DIR)
+    path = create_folder("era5", prefix=paths.INPUT_DIR)
     fname = f"global-{time_period}"
 
     logging.info(f"Preparing ERA5 data {fname}...")

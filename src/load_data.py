@@ -2,8 +2,8 @@ import glob
 
 import xarray as xr
 
-from src.config import INPUT_DIR
-from src.config import INTERIM_DIR
+from src.paths import INPUT_DIR
+from src.paths import INTERIM_DIR
 
 
 def load_land_sea_mask():
