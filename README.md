@@ -3,7 +3,7 @@ syfop-global-costs
 
 
 How to run
-==========
+----------
 
 First install all dependencies, see [INSTALL.md](INSTALL.md).
 
@@ -18,7 +18,7 @@ Note that this is built for [nora](https://nora.boku.ac.at/) (our institute's se
 
 
 Helpful commands and Snakemake parameters
-=========================================
+-----------------------------------------
 
 **Note:** All parameters for `run.sh` are simply passed to Snakemake. We will list a couple of very
 useful calls here:
@@ -57,7 +57,7 @@ If you want to do computation necessary for a specific
 
 
 Configuration and Parameters
-============================
+----------------------------
 
 Configuration for the computation is done in these config files:
 
@@ -86,14 +86,13 @@ Installation instructions can be found [in the documentation of syfop](https://s
 
 
 VSC
-===
+---
 
 A couple of helpful hints to work with the [VSC](https://vsc.ac.at/). Some of these hints may apply
 to Linux only (and probably for Mac OS), not sure if similar hints apply for Windows too.
 
 
-Jobs
-----
+### Jobs
 
 List all jobs currently queued or running submitted by yourself:
 
@@ -113,9 +112,11 @@ Go to the `syfop-global-costs` repo:
 cd $DATA/syfop-global-costs/
 ```
 
+You might want to try [reportseff](https://github.com/troycomi/reportseff), which displays jobs
+even nicer.
 
-SSH config
-----------
+
+### SSH config
 
 Placing the following config snippet in `$HOME/.ssh/config` should make SSH to the VSC way more
 convenient. It should also work [on Windows 10](https://superuser.com/a/1544127/110122] (not tested).
@@ -143,8 +144,7 @@ Host n*-*
 ```
 
 
-Directly log in to a node
--------------------------
+### Directly log in to a node
 
 It can be helpful to directly log into a computation node via SSH to use `htop` to monitor RAM or
 CPU usage (e.g. to see if parallelization is working as expected). SSH to a computation node does
@@ -164,8 +164,7 @@ ssh -J vsc4.vsc.ac.at YOUR_VSC_USERNAME@n4901-035
 ```
 
 
-Interactive session
--------------------
+### Interactive session
 
 Instead of submitting a job which runs a script on a node, you can request an interactive session
 on a node.
