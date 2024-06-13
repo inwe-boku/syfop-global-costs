@@ -1,6 +1,6 @@
-#
-#
-#
+# This file contains parameters for the computation. You may want use some of them to put
+# additional wildcards in the Sankefile for more sensitivity analysis.
+
 
 # weather year used for simulation of renewable time series
 year_era5: 2011
@@ -17,8 +17,12 @@ year_era5: 2011
 #   x_idx_from_to: [740, 800]
 #   y_idx_from_to: [560, 620]
 #
-x_idx_from_to: [0, 1440]
-y_idx_from_to: [0, 720]
+# Global
+#   x_idx_from_to: [0, 1440]
+#   y_idx_from_to: [0, 720]
+
+x_idx_from_to: [740, 800]
+y_idx_from_to: [560, 620]
 
 
 # How many pixels in x/y are computed in one process at once and then stored in one file
