@@ -7,15 +7,18 @@ year_era5: 2011
 
 
 # Define pixels to be used in the optimization:
-# All global pixels: y: 720, x: 1440 (i.e. [0, 1439] and [0, 719])
-
+# All global pixels: y: 720, x: 1440 (i.e. [0, 1339] and [0, 719])
+#
 # Balkan
-# x_idx_from_to: [750, 840]
-# y_idx_from_to: [530, 560]
-
+#   x_idx_from_to: [750, 840]
+#   y_idx_from_to: [530, 560]
+#
 # Denmark
-x_idx_from_to: [740, 800]
-y_idx_from_to: [560, 620]
+#   x_idx_from_to: [740, 800]
+#   y_idx_from_to: [560, 620]
+#
+x_idx_from_to: [0, 1440]
+y_idx_from_to: [0, 720]
 
 
 # How many pixels in x/y are computed in one process at once and then stored in one file
