@@ -1,6 +1,8 @@
 syfop-global-costs
 ==================
 
+![Graph of the network](data/output/network.png)
+
 
 How to run
 ----------

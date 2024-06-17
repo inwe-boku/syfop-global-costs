@@ -171,6 +171,32 @@ rule optimize_network:
         )
 
 
+rule plot_network:
+    # plot the graph of the network to a PNG file
+    # note that this is file is not run automatically, but only if you run this rule explicitly:
+    #
+    #   ./run.sh plot_network
+    input:
+        wind = expand(
+            rules.optimize_network.input.wind,
+            renewable_scenario='default',
+        ),
+        pv = expand(
+            rules.optimize_network.input.pv,
+            renewable_scenario='default',
+        ),
+    output:
+        data_dir + "output/network.png",
+    run:
+        from src.plot_network import plot_network
+        plot_network(
+            inputs=input,
+            outputs=output,
+            pv_timeseries_fname=input.pv[0],
+            wind_timeseries_fname=input.wind[0],
+        )
+
+
 rule concat_solution_chunks:
     input:
         expand(
