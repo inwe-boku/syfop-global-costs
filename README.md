@@ -75,8 +75,30 @@ If you want to do computation necessary for a specific
 ./run.sh data/input/SOME_FILE
 ```
 
---touch
---force
+If you want to skip downloading ERA5 data and already downloaded files, snakemake may complain that
+the files are incomplete. Unfortunately `--cleanup-metadata` does not seem to haven effect (see
+[OPEN_ISSUES.md](OPEN_ISSUES.md)). But you can ignore this with:
+
+```
+./run.sh --ignore-incomplete
+```
+
+Sometimes snakemake wants to rerun a rule but you would like to skip it because it takes too long
+and you know that your changes should not affect the output. You can force snakemake to skip the
+rule:
+
+```
+./run.sh  --touch data/output/SOME_FILE
+```
+
+It is advisable to test the above using `--dryrun`.
+
+Sometimes snakemake does not rerun a rule although you want it to (for example to measure
+performance multiple times). You can force snakemake to rerun the rule:
+
+```
+./run.sh  --force data/output/SOME_FILE
+```
 
 
 **Note:** Some rules have to be killed with SIGKILL (eg. the downloads of ERA5 data).
