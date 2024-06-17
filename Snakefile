@@ -73,6 +73,7 @@ rule download_era5:
     # Also the download bar looks ugly on the screen if there are multiple downloads at once.
     # Therefore we require this rule to use 1 unit of the resource cdsapi and set 1 available
     # cdsapi resource in the profiles for nora and VSC in the profiles in config/*.
+    # TODO this does work any longer, but why? Jobs do run in parallel again! git blame can help?
     resources:
         cdsapi=1
 
