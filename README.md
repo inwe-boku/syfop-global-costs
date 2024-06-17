@@ -1,7 +1,26 @@
 syfop-global-costs
 ==================
 
+This repository contains the code to compute a global map of costs to generate methanol from
+renewable energy sources and CO2 from direct air capture. For each pixel on the map, we compute
+optimal capacities of renewable energy sources, direct air capture, storages, electrolyzer and
+methanol synthesis to generate a certain pre-defined amount of methanol:
+
 ![Graph of the network](data/output/network.png)
+
+The pipeline tool [Snakemake](https://snakemake.github.io/) is used to run the computation.
+Snakemake profiles are defined to run the computation on the [VSC](https://vsc.ac.at/) and on our
+institute's server [nora](https://nora.boku.ac.at/).
+
+The computation will first download ERA5 weather data using
+[Atlite](https://atlite.readthedocs.io/) and then run the optimization for each pixel on the map
+using [syfop](https://syfop.readthedocs.io/).
+
+The idea for the network and the parameters are taken from the paper
+["Pathway to a land-neutral expansion of Brazilian renewable fuel production"](https://doi.org/10.1038/s41467-022-30850-2) (Ramirez Camargo et al., 2022).
+
+Note that this is not ready to be used at the current point in time. Parameters need to be adapted
+and some issues need to be fixed. See [OPEN_ISSUES.md](OPEN_ISSUES.md) for a list of open issues.
 
 
 How to run
@@ -17,6 +36,11 @@ Then run:
 
 Note that this is built for [nora](https://nora.boku.ac.at/) (our institute's server) and the
 [VSC](https://vsc.ac.at/).
+
+When running the computation on the VSC, `run.sh` is started on the login node. The computation is
+then distributed to the nodes as SLURM jobs. `run.sh` (snakemake) will continue to run on the login
+node until all SLURM jobs are finished. Therefore it is advisable to use
+[screen](https://www.gnu.org/software/screen/) (or tmux).
 
 
 Helpful commands and Snakemake parameters
@@ -164,6 +188,10 @@ Without the config above one can use the following command:
 ```
 ssh -J vsc4.vsc.ac.at YOUR_VSC_USERNAME@n4901-035
 ```
+
+The host name n4908-006 is the name of the node, which can be found in the output of `squeue`.
+
+You can use `htop` to monitor the resources or other pre-installed tools.
 
 
 ### Interactive session

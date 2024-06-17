@@ -36,6 +36,11 @@ resource_scopes:
     cdsapi="local",
 
 
+# TODO do we need to add source files as input files to trigger the computation? Snakemake should
+# keep track of it, but somehow it doesn't, right? --list-code-changes does not show changes.
+# TODO do we need to add some of the config options as parameters to the rules?
+
+
 rule all:
     localrule: True
     input:

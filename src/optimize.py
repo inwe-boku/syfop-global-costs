@@ -210,10 +210,12 @@ def optimize_network_chunk(
             # we need an equidistant time series without NaN values for syfop, but the test mode
             # downloads crappy data so let's just throw away NaNs (introduced by the resampling
             # above) and then use only two time stamps - they are equidistant.
-            input_profile = input_profile.dropna('time').isel(time=[0,1])
+            input_profile = input_profile.dropna("time").isel(time=[0, 1])
 
         return input_profile.load()
 
+    # note: this takes some while, that's why we do it only once for a chunk of pixels and not for
+    # each pixel.
     wind_input_profile = slice_and_load(wind_timeseries_fname)
     pv_input_profile = slice_and_load(pv_timeseries_fname)
 
