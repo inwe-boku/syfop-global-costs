@@ -65,19 +65,19 @@ When re-downloading the ERA5 data, for some reason it fails frequently with:
     output: data/interim/wind/wind_renewables-default-month_2011-01.nc
 
 [2024-06-17 14:26:11,423] ERROR - snakemake.logging - RuleException:
-ValueError in file /data/users/pregner/syfop-global-costs/Snakefile, line 104:
+ValueError in file /data/users/my_user/syfop-global-costs/Snakefile, line 104:
 dimension spatial on 0th function argument to apply_ufunc with dask='parallelized' consists of multiple chunks, but is also a core dimension. To fix, either rechunk into a single array chunk along this dimension, i.e., ``.chunk(dict(spatial=-1))``, or pass ``allow_rechunk=True`` in ``dask_gufunc_kwargs`` but beware that this may significantly increase memory usage.
-  File "/data/users/pregner/syfop-global-costs/Snakefile", line 104, in __rule_generate_renewable_timeseries
-  File "/data/users/pregner/syfop-global-costs/src/task.py", line 70, in task_func
-  File "/data/users/pregner/syfop-global-costs/src/renewable_timeseries.py", line 81, in generate_renewable_timeseries
-  File "/data/users/pregner/syfop-global-costs/src/renewable_timeseries.py", line 24, in wind
-  File "/home/pregner/micromamba/envs/syfop-global-costs/lib/python3.10/site-packages/atlite/convert.py", line 521, in wind
-  File "/home/pregner/micromamba/envs/syfop-global-costs/lib/python3.10/site-packages/atlite/convert.py", line 174, in convert_and_aggregate
-  File "/home/pregner/micromamba/envs/syfop-global-costs/lib/python3.10/site-packages/atlite/aggregate.py", line 19, in aggregate_matrix
-  File "/home/pregner/micromamba/envs/syfop-global-costs/lib/python3.10/site-packages/xarray/core/computation.py", line 1266, in apply_ufunc
-  File "/home/pregner/micromamba/envs/syfop-global-costs/lib/python3.10/site-packages/xarray/core/computation.py", line 312, in apply_dataarray_vfunc
-  File "/home/pregner/micromamba/envs/syfop-global-costs/lib/python3.10/site-packages/xarray/core/computation.py", line 767, in apply_variable_ufunc
-  File "/home/pregner/micromamba/envs/syfop-global-costs/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+  File "/data/users/my_user/syfop-global-costs/Snakefile", line 104, in __rule_generate_renewable_timeseries
+  File "/data/users/my_user/syfop-global-costs/src/task.py", line 70, in task_func
+  File "/data/users/my_user/syfop-global-costs/src/renewable_timeseries.py", line 81, in generate_renewable_timeseries
+  File "/data/users/my_user/syfop-global-costs/src/renewable_timeseries.py", line 24, in wind
+  File "/home/my_user/micromamba/envs/syfop-global-costs/lib/python3.10/site-packages/atlite/convert.py", line 521, in wind
+  File "/home/my_user/micromamba/envs/syfop-global-costs/lib/python3.10/site-packages/atlite/convert.py", line 174, in convert_and_aggregate
+  File "/home/my_user/micromamba/envs/syfop-global-costs/lib/python3.10/site-packages/atlite/aggregate.py", line 19, in aggregate_matrix
+  File "/home/my_user/micromamba/envs/syfop-global-costs/lib/python3.10/site-packages/xarray/core/computation.py", line 1266, in apply_ufunc
+  File "/home/my_user/micromamba/envs/syfop-global-costs/lib/python3.10/site-packages/xarray/core/computation.py", line 312, in apply_dataarray_vfunc
+  File "/home/my_user/micromamba/envs/syfop-global-costs/lib/python3.10/site-packages/xarray/core/computation.py", line 767, in apply_variable_ufunc
+  File "/home/my_user/micromamba/envs/syfop-global-costs/lib/python3.10/concurrent/futures/thread.py", line 58, in run
 [2024-06-17 14:26:11,424] WARNING - snakemake.logging - Shutting down, this might take some time.
 [2024-06-17 14:26:11,424] ERROR - snakemake.logging - Exiting because a job execution failed. Look above for error message
 ```
@@ -85,7 +85,65 @@ dimension spatial on 0th function argument to apply_ufunc with dask='parallelize
 With the ERA5 data downloaded a couple of months ago everything works fine. Either the data changed
 or some of the new versions of packages introduced the issue.
 
-I think it also did run successfully a couple of times. Maybe just memory issues?
+I think it did run successfully a couple of times, here you can see a couple of months downloaded
+successfully:
+
+```
+-r-------- 1 my_user user 35G Jun 17 14:14 global-2011-01.nc
+-rw-rw-r-- 1 my_user user 262 Jun 17 14:14 global-2011-01.nc.run.yaml
+-r-------- 1 my_user user 32G Jun 17 18:11 global-2011-02.nc
+-rw-rw-r-- 1 my_user user 263 Jun 17 18:11 global-2011-02.nc.run.yaml
+-r-------- 1 my_user user 34G Jun 17 18:41 global-2011-06.nc
+-rw-rw-r-- 1 my_user user 263 Jun 17 18:41 global-2011-06.nc.run.yaml
+-r-------- 1 my_user user 36G Jun 17 17:18 global-2011-07.nc
+-rw-rw-r-- 1 my_user user 263 Jun 17 17:18 global-2011-07.nc.run.yaml
+-r-------- 1 my_user user 35G Jun 17 17:43 global-2011-09.nc
+-rw-rw-r-- 1 my_user user 260 Jun 17 17:43 global-2011-09.nc.run.yaml
+-r-------- 1 my_user user 34G Jun 17 17:07 global-2011-11.nc
+-rw-rw-r-- 1 my_user user 262 Jun 17 17:07 global-2011-11.nc.run.yaml
+-rw------- 1 my_user user 42K Jun 17 16:13 tmp2rbf6m1fglobal-2011-04.nc
+-rw------- 1 my_user user 42K Jun 17 16:00 tmp82gyv6yhglobal-2011-03.nc
+-rw------- 1 my_user user 42K Jun 17 16:14 tmpbh7o2a14global-2011-12.nc
+-rw------- 1 my_user user 42K Jun 17 17:04 tmpe4lo9lskglobal-2011-10.nc
+-rw------- 1 my_user user 42K Jun 17 16:26 tmpp3m5wg9uglobal-2011-08.nc
+-rw------- 1 my_user user 42K Jun 17 15:57 tmpuch13t_1global-2011-05.nc
+```
+
+Some of the files failed due to memory issues (why are there multiple downloads running in
+parallel? I thought I limited it to one download at a time using the resource `cdsapi`...?).
+
+
+Note that the error above at 14:26 was not due to memory issues:
+
+```
+2024-06-12 19:13:19+02:00       my_user  1555485 85.8  0.0      0     0 pts/4    Zl+  19:10   2:41 [python3.10] <defunct>
+2024-06-17 15:57:59+02:00  Low memory! Killing process 1228240 python3_10 owned by my_user
+2024-06-17 15:57:59+02:00       USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+2024-06-17 15:57:59+02:00       my_user  1228240 15.5  0.0      0     0 pts/0    Zl+  14:26  14:18 [python3.10] <defunct>
+2024-06-17 16:01:16+02:00  Low memory! Killing process 1228273 python3_10 owned by my_user
+2024-06-17 16:01:16+02:00       USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+2024-06-17 16:01:16+02:00       my_user  1228273 13.9  0.0      0     0 pts/0    Zl+  14:26  13:15 [python3.10] <defunct>
+2024-06-17 16:14:26+02:00  Low memory! Killing process 1228238 python3_10 owned by my_user
+2024-06-17 16:14:26+02:00       USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+2024-06-17 16:14:26+02:00       my_user  1228238 13.7  0.0      0     0 pts/0    Zl+  14:26  14:51 [python3.10] <defunct>
+2024-06-17 16:15:16+02:00  Low memory! Killing process 1228264 python3_10 owned by my_user
+2024-06-17 16:15:16+02:00       USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+2024-06-17 16:15:16+02:00       my_user  1228264 16.2  0.0      0     0 pts/0    Zl+  14:26  17:43 [python3.10] <defunct>
+2024-06-17 16:26:38+02:00  Low memory! Killing process 1228249 python3_10 owned by my_user
+2024-06-17 16:26:38+02:00       USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+2024-06-17 16:26:38+02:00       my_user  1228249  8.0  0.0      0     0 pts/0    Zl+  14:26   9:39 [python3.10] <defunct>
+2024-06-17 17:05:10+02:00  Low memory! Killing process 1228258 python3_10 owned by my_user
+2024-06-17 17:05:10+02:00       USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+2024-06-17 17:05:10+02:00       my_user  1228258  6.6  0.0      0     0 pts/0    Zl+  14:26  10:38 [python3.10] <defunct>
+```
+
+As a workaround, a ready data set of ERA5 data is available here on nora:
+
+```
+nora:/data/datasets/era5-global-wind-pv
+```
+
+You'll probably need to use the `--ignore-incomplete` flag to use the old files (see below).
 
 
 Use of old files
@@ -95,7 +153,7 @@ For some reason Snakemake won't allow to use old ERA5 files. It complains that t
 incomplete and suggests to rerun the relevant rules. However, this would take a lot of time and
 also it is broken (see previous issue).
 
-The command --cleanup-metadata does not seem to have any effect. No idea why.
+The command `--cleanup-metadata` does not seem to have any effect. No idea why.
 
 However, the following command can be used to ignore the issue:
 
