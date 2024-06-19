@@ -11,6 +11,17 @@ should be in KWh not in tons. The costs might actually refer to the costs per KW
 values might be completely wrong atm. Also all the `convert_factors` should be checked.
 
 
+Optimize number of parallel jobs
+--------------------------------
+
+At the moment the resources (required RAM for one job) are defined in Snakefile after roughly
+measuring the peaks for one job. Snakemake will then run as many jobs in parallel as possible. But
+in practice it seems as if neither RAM nor CPU capacities are fully used.
+
+It might be worth to re-evaluate the configuration of resources and check how many jobs are
+actually run in parallel on nora or one one node on the VSC.
+
+
 Methanol demand depends on time stamp interval
 ----------------------------------------------
 
