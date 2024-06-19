@@ -39,6 +39,9 @@ if [ $(hostname) == "nora" ]; then
 elif [ -v VSC_CLUSTER_ID ]; then
     echo "Running via SLURM on VSC..."
     export SNAKEMAKE_PROFILE=config/vsc
+else
+    echo "Running without pre-defined snakemake profile locally..."
+    # do you really have enough RAM and resources to run this locally?
 fi
 
 
