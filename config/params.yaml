@@ -36,13 +36,15 @@ time_period_h: "4h"
 # Parameters for PV and wind time series: parameters are passed to the atlite functions
 # Cutout.wind() and Cutout.pv(). Each key describes a scenario with a set of parameters for
 # renewable time series which is used in the file names.
-# Note: If you want to have multiple settings you need to add the wild cards to the optimization
-# rules. ATM this is done only for the generation of the time series.
+#
+# Note: here are only alphanumeric characters allowed for the key for each scenario. Adapat the
+# wildcard_constraints in the Snakefile if you want to use other characters, but - and _ might lead
+# to ambiguous rules (AmbiguousRuleException).
 #
 # https://atlite.readthedocs.io/en/master/ref_api.html#atlite.Cutout.wind
 # https://atlite.readthedocs.io/en/master/ref_api.html#atlite.Cutout.pv
 renewable_params:
-    default:
+    VestasV903MWCsi30180:
         pv:
             panel: CSi
             orientation:

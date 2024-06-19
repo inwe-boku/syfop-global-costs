@@ -16,8 +16,9 @@ configfile: "config/config.yaml"
 
 wildcard_constraints:
     year="\d+",
+    month="\d+",
     technology="[a-z]+",
-    renewable_scenario="[a-z]+",
+    renewable_scenario="[a-z0-9A-Z]+",
 
 
 # testmode is a fast run with test data, see config/config.yaml
@@ -185,11 +186,11 @@ rule plot_network:
     input:
         wind = expand(
             rules.optimize_network.input.wind,
-            renewable_scenario='default',
+            renewable_scenario=list(config['renewable_params'].keys())[0],
         ),
         pv = expand(
             rules.optimize_network.input.pv,
-            renewable_scenario='default',
+            renewable_scenario=list(config['renewable_params'].keys())[0],
         ),
     output:
         data_dir + "output/network.png",
