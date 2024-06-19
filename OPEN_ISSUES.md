@@ -210,3 +210,6 @@ to have successful global run of the optimization but only for a limited test se
 
 (Unfortunately I cannot reproduce atm and can't find the error message in the logs any longer. But
 I am pretty sure the solver said something like "infeasible".)
+
+I guess the best way to solve this issue would be to reproduce the issue, then try to find a
+a pixel which fails and one which does not and then compare the them.

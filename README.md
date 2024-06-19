@@ -42,6 +42,10 @@ then distributed to the nodes as SLURM jobs. `run.sh` (snakemake) will continue 
 node until all SLURM jobs are finished. Therefore it is advisable to use
 [screen](https://www.gnu.org/software/screen/) (or tmux).
 
+If you want to skip downloading the ERA5 data, there is a ready data set on nora:
+`/data/datasets/era5-global-wind-pv`. You may need the `--ignore-incomplete` flag (see below and
+[OPEN_ISSUES.md](OPEN_ISSUES.md)).
+
 
 Helpful commands and Snakemake parameters
 -----------------------------------------
