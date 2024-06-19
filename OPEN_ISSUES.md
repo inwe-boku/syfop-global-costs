@@ -150,10 +150,34 @@ Use of old files
 ----------------
 
 For some reason Snakemake won't allow to use old ERA5 files. It complains that the files are
-incomplete and suggests to rerun the relevant rules. However, this would take a lot of time and
-also it is broken (see previous issue).
+incomplete and suggests to rerun the relevant rules:
 
-The command `--cleanup-metadata` does not seem to have any effect. No idea why.
+```
+$ ./run.sh --dryrun
+Running on nora...
+Using profile config/nora for setting default command line arguments.
+Building DAG of jobs...
+IncompleteFilesException:
+The files below seem to be incomplete. If you are sure that certain files are not incomplete, mark them as complete with
+
+    snakemake --cleanup-metadata <filenames>
+
+To re-generate the files rerun your command with the --rerun-incomplete flag.
+Incomplete files:
+data/input/land_sea_mask/land_sea_mask.nc
+data/input/era5/global-2011-01.nc
+data/input/era5/global-2011-02.nc
+data/input/era5/global-2011-06.nc
+data/input/era5/global-2011-07.nc
+data/input/era5/global-2011-09.nc
+data/input/era5/global-2011-11.nc
+```
+
+However, this rerunning the rules would take a lot of time and also it is broken (see previous
+issue).
+
+The suggested command `--cleanup-metadata` does not seem to have any effect. No idea why. `--touch`
+doesn't seem to have any effect either (it throws the same error)
 
 However, the following command can be used to ignore the issue:
 
